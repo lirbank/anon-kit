@@ -1,0 +1,26 @@
+{
+  "name": "anon-kit",
+  "version": "0.0.1",
+  "description": "Mask sensitive data in any Postgres database.",
+  "license": "MIT",
+  "author": "Mikael Lirbank",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lirbank/anon-kit.git"
+  },
+  "homepage": "https://github.com/lirbank/anon-kit#readme",
+  "bugs": "https://github.com/lirbank/anon-kit/issues",
+  "keywords": [
+    "postgres",
+    "neon",
+    "lakebase",
+    "anonymization",
+    "masking",
+    "pii"
+  ],
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ]
+}
