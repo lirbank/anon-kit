@@ -15,11 +15,11 @@ const COMMANDS: Record<
   { load: () => Promise<unknown>; blurb: string }
 > = {
   init: {
-    load: () => import("./init.ts"),
+    load: () => import("./init"),
     blurb: "Introspect the database and scaffold anon-kit.json",
   },
   apply: {
-    load: () => import("./apply.ts"),
+    load: () => import("./apply"),
     blurb: "Mask the database and run leak checks [--compile-only] [--yes]",
   },
 };
