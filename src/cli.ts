@@ -1,15 +1,25 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 // Entry point: routes subcommands to the command scripts.
 //
 // Usage: anon-kit <command> [flags]
 
-const COMMANDS: Record<string, { file: string; blurb: string }> = {
+// Bun loads .env on its own; this loads it when running under Node.
+try {
+  process.loadEnvFile();
+} catch {
+  // No .env file — the variables may come from the shell instead.
+}
+
+const COMMANDS: Record<
+  string,
+  { load: () => Promise<unknown>; blurb: string }
+> = {
   init: {
-    file: "./init.ts",
+    load: () => import("./init.ts"),
     blurb: "Introspect the database and scaffold anon-kit.json",
   },
   apply: {
-    file: "./apply.ts",
+    load: () => import("./apply.ts"),
     blurb: "Mask the database and run leak checks [--compile-only] [--yes]",
   },
 };
@@ -25,4 +35,4 @@ if (!command) {
   process.exit(cmd ? 1 : 0);
 }
 
-await import(command.file);
+await command.load();

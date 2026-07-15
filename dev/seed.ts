@@ -1,11 +1,11 @@
-// Seed a PHI-shaped schema with synthetic data, mirroring the spec's examples.
+// Seed a PHI-shaped schema with synthetic data for exercising the strategies.
 // Usage: bun run seed [patientCount]  (default 100)
 //
 // Creates:
 //   patients   — name, email, phone, ssn, dob, zip (the PII/PHI columns)
-//   encounters — patient_id FK (non-deferrable, like the failure mode the spec
-//                hit), dates, free-text notes with embedded SSN/email/phone so
-//                the scrub pass has something to catch
+//   encounters — patient_id FK (non-deferrable, the shape that breaks a naive
+//                id rewrite), dates, free-text notes with embedded
+//                SSN/email/phone so the scrub pass has something to catch
 
 import postgres from "postgres";
 

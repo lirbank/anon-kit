@@ -10,6 +10,7 @@
 //
 // Usage: anon-kit apply [--compile-only] [--yes]
 
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createInterface } from "node:readline/promises";
 import postgres from "postgres";
 import {
@@ -35,8 +36,8 @@ if (!url) {
 }
 
 const { $schema: _, ...mapping }: Mapping & { $schema?: string } =
-  await Bun.file(MAP_FILE)
-    .json()
+  await readFile(MAP_FILE, "utf8")
+    .then((s) => JSON.parse(s))
     .catch(() => {
       console.error(`Cannot read ${MAP_FILE} — run anon-kit init first`);
       process.exit(1);
@@ -56,9 +57,10 @@ const { sql: verify, checkCount } = compileVerify(mapping);
 
 // The folder ignores itself, so running apply never dirties the user's
 // gitignore. The map at the repo root is the only file meant to be committed.
-await Bun.write(`${GENERATED_DIR}/.gitignore`, "*\n");
-await Bun.write(`${GENERATED_DIR}/mask.sql`, mask);
-await Bun.write(`${GENERATED_DIR}/verify.sql`, verify);
+await mkdir(GENERATED_DIR, { recursive: true });
+await writeFile(`${GENERATED_DIR}/.gitignore`, "*\n");
+await writeFile(`${GENERATED_DIR}/mask.sql`, mask);
+await writeFile(`${GENERATED_DIR}/verify.sql`, verify);
 console.log(
   `Compiled ${GENERATED_DIR}/mask.sql and verify.sql (${checkCount} leak checks)`,
 );

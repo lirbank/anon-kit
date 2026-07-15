@@ -14,6 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun install --frozen-lockfile
+      - run: bun test
+      - run: bun x tsc --noEmit
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -22,6 +28,6 @@ jobs:
       # Trusted publishing requires npm >= 11.5.1
       - run: npm install -g npm@latest
 
-      # No token needed — auth happens via GitHub OIDC, and npm generates
-      # provenance automatically for trusted publishes.
+      # prepublishOnly builds dist/. No token needed — auth happens via GitHub
+      # OIDC, and npm generates provenance automatically for trusted publishes.
       - run: npm publish

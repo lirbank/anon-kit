@@ -6,14 +6,17 @@
 //
 // Usage: anon-kit init
 
+import { existsSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
 import postgres from "postgres";
 import { defaultMap } from "./core";
 import { introspect } from "./lib";
 
 const MAP_FILE = "anon-kit.json";
-// The schema is a committed build artifact (bun run schema). Swap this for a
-// public URL once the schema is hosted where editors can fetch it anonymously.
-const SCHEMA_REF = "./anon-kit.schema.json";
+// Hosted from this repo's main branch so editors can fetch it anonymously
+// from any repo the map lands in.
+const SCHEMA_REF =
+  "https://raw.githubusercontent.com/lirbank/anon-kit/main/anon-kit.schema.json";
 
 const url = process.env.ANON_KIT_DATABASE_URL;
 if (!url) {
@@ -21,8 +24,7 @@ if (!url) {
   process.exit(1);
 }
 
-const existing = Bun.file(MAP_FILE);
-if (await existing.exists()) {
+if (existsSync(MAP_FILE)) {
   console.error(`${MAP_FILE} already exists — delete it to start over`);
   process.exit(1);
 }
@@ -33,7 +35,7 @@ await sql.end();
 
 const mapping = defaultMap(columns, fks);
 
-await Bun.write(
+await writeFile(
   MAP_FILE,
   JSON.stringify({ $schema: SCHEMA_REF, ...mapping }, null, 2) + "\n",
 );

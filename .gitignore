@@ -5,3 +5,7 @@ dist/
 .env.*
 !.env.example
 .DS_Store
+
+# In a user's repo the map is committed; here it's regenerable output from
+# dogfooding the tool on this repo
+/anon-kit.json

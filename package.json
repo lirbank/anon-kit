@@ -1,6 +1,6 @@
 {
   "name": "anon-kit",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Mask sensitive data in any Postgres database.",
   "license": "MIT",
   "author": "Mikael Lirbank",
@@ -19,8 +19,28 @@
     "pii"
   ],
   "type": "module",
-  "main": "index.js",
+  "bin": {
+    "anon-kit": "dist/cli.js"
+  },
   "files": [
-    "index.js"
-  ]
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "bun build src/cli.ts --outdir dist --target node",
+    "prepublishOnly": "bun run build",
+    "test": "bun test",
+    "typecheck": "bun x tsc --noEmit",
+    "schema": "bun dev/build-schema.ts && prettier --write anon-kit.schema.json src/strategies/registry.ts",
+    "format": "prettier --write .",
+    "seed": "bun dev/seed.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "postgres": "^3.4.9",
+    "prettier": "^3.9.5",
+    "typescript": "^7.0.2"
+  }
 }

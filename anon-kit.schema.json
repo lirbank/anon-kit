@@ -1,0 +1,215 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Anonymization mapping",
+  "description": "column → masking strategy, compiled to SQL by anon-kit apply",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "patternProperties": {
+    "^[^.]+\\.[^.]+$": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "strategy": {
+            "enum": [
+              "date_shift",
+              "email",
+              "first_name",
+              "follow_fk",
+              "hash_id",
+              "keep",
+              "last_name",
+              "phone",
+              "redact",
+              "scrub_text",
+              "zip3",
+              null
+            ]
+          },
+          "key": {
+            "type": "string",
+            "description": "date_shift: key column in the same table"
+          },
+          "references": {
+            "type": "string",
+            "description": "follow_fk: schema.table.column"
+          },
+          "sentinel": {
+            "type": ["string", "null"],
+            "description": "redact: replacement value (null needs a nullable column)"
+          },
+          "_pgType": {
+            "type": "string",
+            "description": "live column type — written by init, not a setting"
+          },
+          "_nullable": {
+            "type": "boolean",
+            "description": "live column nullability — written by init, not a setting"
+          }
+        },
+        "required": ["strategy", "_pgType", "_nullable"],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "strategy": {
+                  "const": "date_shift"
+                }
+              }
+            },
+            "then": {
+              "required": ["key"],
+              "properties": {
+                "_pgType": {
+                  "enum": ["date"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "strategy": {
+                  "const": "email"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "_pgType": {
+                  "enum": ["text", "character varying", "character"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "strategy": {
+                  "const": "first_name"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "_pgType": {
+                  "enum": ["text", "character varying", "character"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "strategy": {
+                  "const": "follow_fk"
+                }
+              }
+            },
+            "then": {
+              "required": ["references"]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "strategy": {
+                  "const": "hash_id"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "_pgType": {
+                  "enum": ["text", "character varying"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "strategy": {
+                  "const": "last_name"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "_pgType": {
+                  "enum": ["text", "character varying", "character"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "strategy": {
+                  "const": "phone"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "_pgType": {
+                  "enum": ["text", "character varying", "character"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "strategy": {
+                  "const": "redact"
+                }
+              }
+            },
+            "then": {
+              "required": ["sentinel"]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "strategy": {
+                  "const": "scrub_text"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "_pgType": {
+                  "enum": ["text", "character varying", "character"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "strategy": {
+                  "const": "zip3"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "_pgType": {
+                  "enum": ["text", "character varying", "character"]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

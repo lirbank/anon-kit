@@ -8,6 +8,6 @@
 
 - A branch is a database branch, never a git branch. Write "database branch" wherever git could be read into it
 - Mask is the only verb for overwriting sensitive values. Never anonymize, obfuscate, or scrub as verbs (scrub_text and redact are strategy names only)
-- anon-kit is the database branch that apply masks. Don't call it a copy
+- apply masks the database at ANON_KIT_DATABASE_URL in place — a copy of production the user creates
 - The map is anon-kit.json: one masking strategy per column
 - Don't claim masked output is fully anonymized — shape-preserving strategies keep identifying structure
