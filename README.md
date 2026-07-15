@@ -215,7 +215,7 @@ bun run seed           # create and fill the demo tables
 - `bun src/cli.ts init` — introspect the database and scaffold anon-kit.json
 - `bun src/cli.ts apply --compile-only` — validate the map and write `.anon-kit/mask.sql` + `verify.sql`
 - `bun src/cli.ts apply` — mask the database and run the leak checks
-- `bun x tsc --noEmit` and `bun run format` before committing
+- `bunx tsc --noEmit` and `bun run format` before committing
 
 ### How a strategy is built
 

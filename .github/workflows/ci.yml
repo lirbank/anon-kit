@@ -13,5 +13,5 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun test
-      - run: bun x tsc --noEmit
+      - run: bunx tsc --noEmit
       - run: bun run build

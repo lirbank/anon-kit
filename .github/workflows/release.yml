@@ -24,7 +24,7 @@ jobs:
 
       - run: bun install --frozen-lockfile
       - run: bun test
-      - run: bun x tsc --noEmit
+      - run: bunx tsc --noEmit
 
       - uses: actions/setup-node@v7
         with:
