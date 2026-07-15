@@ -1,15 +1,16 @@
-// Compiles anon-kit.json into mask/verify SQL and runs it on a target branch.
+// Compiles anon-kit.json into mask/verify SQL and runs it on the database.
 // I/O shell only — validation and compilation live in core.ts.
 //
-// 1. Re-introspects the live schema and diffs it against the mapping — any
+// 1. Introspects the live schema and diffs it against the mapping — any
 //    live column missing from the mapping (or still strategy: null) is an
 //    error. New columns can't silently sail through unmasked.
 // 2. Compiles .anon-kit/mask.sql + verify.sql from the mapping.
-// 3. Creates the target branch (or uses TARGET_DATABASE_URL), installs the
-//    function pack, masks, verifies, reports. Exits non-zero on leaks.
+// 3. Confirms the target host, installs the function pack, masks, verifies,
+//    reports. Exits non-zero on leaks.
 //
-// Usage: ./src/cli.ts apply [branch-name] [--compile-only]
+// Usage: anon-kit apply [--compile-only] [--yes]
 
+import { createInterface } from "node:readline/promises";
 import postgres from "postgres";
 import {
   compileMask,
@@ -18,25 +19,18 @@ import {
   validate,
 } from "./core";
 import { installSql } from "./install";
-import {
-  introspect,
-  qualify,
-  quoteIdent,
-  resolveTargetUrl,
-  exitOnApiError,
-} from "./lib";
+import { introspect, qualify, quoteIdent } from "./lib";
 import type { Mapping } from "./strategies";
 
 const MAP_FILE = "anon-kit.json";
 const GENERATED_DIR = ".anon-kit";
 
 const compileOnly = process.argv.includes("--compile-only");
-const branchName =
-  process.argv.filter((a) => !a.startsWith("--"))[2] ?? "anon-kit";
+const skipConfirm = process.argv.includes("--yes");
 
-const sourceUrl = process.env.DATABASE_URL;
-if (!sourceUrl) {
-  console.error("DATABASE_URL must be set (see .env.example)");
+const url = process.env.ANON_KIT_DATABASE_URL;
+if (!url) {
+  console.error("ANON_KIT_DATABASE_URL is not set (see .env.example)");
   process.exit(1);
 }
 
@@ -48,9 +42,8 @@ const { $schema: _, ...mapping }: Mapping & { $schema?: string } =
       process.exit(1);
     });
 
-const sourceSql = postgres(sourceUrl, { max: 1 });
-const { columns, fks } = await introspect(sourceSql);
-await sourceSql.end();
+const sql = postgres(url, { max: 1, onnotice: () => {} });
+const { columns, fks } = await introspect(sql);
 
 const errors = validate(mapping, columns, fks);
 if (errors.length > 0) {
@@ -74,8 +67,18 @@ if (compileOnly) process.exit(0);
 
 // --------------------------------------------------------------------- run
 
-const targetUrl = await resolveTargetUrl(branchName).catch(exitOnApiError);
-const sql = postgres(targetUrl, { max: 1, onnotice: () => {} });
+// Masking rewrites data in place — make the human look at the host before
+// anything is written. --yes is for CI, where the URL is machine-placed.
+if (!skipConfirm) {
+  const host = new URL(url).hostname;
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await rl.question(`Mask ${host} in place? [y/N] `);
+  rl.close();
+  if (!/^y(es)?$/i.test(answer.trim())) {
+    console.log("Aborted — nothing written.");
+    process.exit(1);
+  }
+}
 
 // Per-run salt, generated fresh and discarded: masks are consistent within a
 // run (joins, FKs, date intervals) but nothing links an entity across runs.
@@ -118,7 +121,7 @@ for (const f of rewrittenFollowers(mapping)) {
 await sql.end();
 
 if (leaks.length > 0) {
-  console.error("Leak checks failed — do not grant access to this branch.");
+  console.error("Leak checks failed — do not grant access to this database.");
   process.exit(1);
 }
 console.log("All leak checks passed.");

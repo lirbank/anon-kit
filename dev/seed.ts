@@ -15,9 +15,9 @@ if (!Number.isInteger(patientCount) || patientCount < 1) {
   process.exit(1);
 }
 
-const url = process.env.DATABASE_URL;
+const url = process.env.ANON_KIT_DATABASE_URL;
 if (!url) {
-  console.error("DATABASE_URL is not set (see .env.example)");
+  console.error("ANON_KIT_DATABASE_URL is not set (see .env.example)");
   process.exit(1);
 }
 

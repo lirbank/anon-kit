@@ -1,10 +1,10 @@
-// Introspects DATABASE_URL and writes anon-kit.json: every column listed,
-// defaulted to "keep". FK columns are prefilled with follow_fk (they inherit
-// whatever the referenced column decides, so there's nothing to choose).
-// Set masking strategies on the sensitive columns, then run anon-kit apply.
-// I/O shell only — the scaffolding logic lives in core.ts.
+// Introspects ANON_KIT_DATABASE_URL and writes anon-kit.json: every column
+// listed, defaulted to "keep". FK columns are prefilled with follow_fk (they
+// inherit whatever the referenced column decides, so there's nothing to
+// choose). Set masking strategies on the sensitive columns, then run
+// anon-kit apply. I/O shell only — the scaffolding logic lives in core.ts.
 //
-// Usage: ./src/cli.ts init
+// Usage: anon-kit init
 
 import postgres from "postgres";
 import { defaultMap } from "./core";
@@ -15,9 +15,9 @@ const MAP_FILE = "anon-kit.json";
 // public URL once the schema is hosted where editors can fetch it anonymously.
 const SCHEMA_REF = "./anon-kit.schema.json";
 
-const url = process.env.DATABASE_URL;
+const url = process.env.ANON_KIT_DATABASE_URL;
 if (!url) {
-  console.error("DATABASE_URL is not set (see .env.example)");
+  console.error("ANON_KIT_DATABASE_URL is not set (see .env.example)");
   process.exit(1);
 }
 
@@ -45,5 +45,5 @@ console.log(
   `Wrote ${MAP_FILE}: ${Object.keys(mapping).length} tables, ${columns.length} columns (${fkCount} follow_fk, the rest default to "keep").`,
 );
 console.log(
-  `Review every column and set a masking strategy on the sensitive ones — "keep" means it ships to the anon branch unmasked. Then run anon-kit apply.`,
+  `Review every column and set a masking strategy on the sensitive ones — "keep" means it ships unmasked. Then run anon-kit apply.`,
 );

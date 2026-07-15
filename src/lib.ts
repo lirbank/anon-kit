@@ -1,7 +1,5 @@
-// Shared pieces for the anon scripts: schema introspection, SQL quoting,
-// and target-branch resolution via the Neon API.
+// Shared pieces for the commands: schema introspection and SQL quoting.
 
-import { createApiClient, EndpointType } from "@neondatabase/api-client";
 import type postgres from "postgres";
 
 export type Column = {
@@ -65,71 +63,3 @@ export const quoteIdent = (s: string) => `"${s.replaceAll('"', '""')}"`;
 export const quoteLiteral = (s: string) => `'${s.replaceAll("'", "''")}'`;
 export const qualify = (table: string) =>
   table.split(".").map(quoteIdent).join(".");
-
-// Creates a branch via the Neon API and returns its connection string, or
-// returns TARGET_DATABASE_URL directly when set. Axios errors embed the API
-// key in their config — callers must catch and use exitOnApiError.
-export async function resolveTargetUrl(branchName: string): Promise<string> {
-  if (process.env.TARGET_DATABASE_URL) {
-    console.log("Using TARGET_DATABASE_URL as target branch");
-    return process.env.TARGET_DATABASE_URL;
-  }
-
-  const apiKey = process.env.NEON_API_KEY;
-  const sourceUrl = process.env.DATABASE_URL;
-  if (!apiKey || !sourceUrl) {
-    console.error(
-      "Set TARGET_DATABASE_URL, or NEON_API_KEY + DATABASE_URL (see .env.example)",
-    );
-    process.exit(1);
-  }
-
-  const api = createApiClient({ apiKey });
-
-  let projectId = process.env.NEON_PROJECT_ID;
-  if (!projectId) {
-    // Works for personal/org keys; project-scoped keys can't list projects
-    const projects = (await api.listProjects({})).data.projects;
-    if (projects.length !== 1) {
-      console.error(
-        `Expected exactly one Neon project, found ${projects.length}. Set NEON_PROJECT_ID.`,
-      );
-      process.exit(1);
-    }
-    projectId = projects[0]!.id;
-  }
-
-  const source = new URL(sourceUrl);
-  const database = source.pathname.slice(1);
-  const role = decodeURIComponent(source.username);
-
-  console.log(`Creating branch "${branchName}" in project ${projectId}...`);
-  const created = await api.createProjectBranch(projectId, {
-    branch: { name: branchName },
-    endpoints: [{ type: EndpointType.ReadWrite }],
-  });
-
-  const uri = await api.getConnectionUri({
-    projectId,
-    branch_id: created.data.branch.id,
-    database_name: database,
-    role_name: role,
-  });
-  console.log(`Branch ${created.data.branch.id} created`);
-  return uri.data.uri;
-}
-
-export function exitOnApiError(err: unknown): never {
-  const e = err as {
-    isAxiosError?: boolean;
-    response?: { status?: number; data?: { message?: string } };
-    message?: string;
-  };
-  if (e.isAxiosError) {
-    console.error(
-      `Neon API error ${e.response?.status}: ${e.response?.data?.message ?? e.message}`,
-    );
-    process.exit(1);
-  }
-  throw err;
-}
