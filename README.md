@@ -29,7 +29,7 @@ anon-kit connects to one database: `ANON_KIT_DATABASE_URL`, set in the environme
 ### Getting a copy to mask
 
 - **[Neon](https://neon.com/)** — create a branch of production in the console or with `neon branches create`, and use the branch's connection string.
-- **[Databricks Lakebase](https://www.databricks.com/product/lakebase)** — create a branch of the database in the console or with the Databricks CLI, and use the branch's connection string.
+- **[Databricks Lakebase](https://www.databricks.com/product/lakebase)** — create a branch of the database in the console or with the Databricks CLI, and use the branch's connection string with an OAuth token (`databricks auth token`) as the password.
 - **Any Postgres** — restore a dump into a scratch database (`pg_dump` production, `pg_restore` into the copy).
 
 Branches make this instant at any database size: the branch is born with production's schema and data, and a fresh copy is one command away. To refresh a masked copy, recreate the branch and run `apply` again.
@@ -230,3 +230,13 @@ The anon extension's [masking functions](https://postgresql-anonymizer.readthedo
 ### Removing masking strategies
 
 Delete the files, rerun `bun run schema`, and take it out of the tests and any map that uses it.
+
+### Cutting a release
+
+Bump `version` in [package.json](package.json), commit, and push. Then publish a GitHub release whose tag is `v` plus that version:
+
+```sh
+gh release create v0.2.0 --title "v0.2.0" --notes "What changed"
+```
+
+Publishing the release triggers the [release workflow](.github/workflows/release.yml): it verifies the tag matches package.json's version, runs the tests and typecheck, builds `dist/`, and publishes to npm via [trusted publishing](https://docs.npmjs.com/trusted-publishers) — no npm tokens anywhere, and every release carries a provenance attestation. When the run goes green, verify with `npx anon-kit@latest` from an empty directory.
