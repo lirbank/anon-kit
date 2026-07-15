@@ -198,3 +198,35 @@ Regex pass over free text replacing SSN, email, and phone patterns with `[SSN]`,
 
 - The weakest strategy: names and any other sensitive prose survive ("Patient Alice Garcia presented..." stays intact). Use it only when devs genuinely need the text; otherwise `redact`.
 - Leak check: the same three patterns return zero matches — it verifies the scrub ran, not that the text is clean.
+
+## Contributing
+
+### Setup
+
+```sh
+bun install
+cp .env.example .env   # set ANON_KIT_DATABASE_URL to a throwaway Postgres database
+bun run seed           # create and fill the demo tables
+```
+
+### Dev loop
+
+- `bun test` — no database needed
+- `bun src/cli.ts init` — introspect the database and scaffold anon-kit.json
+- `bun src/cli.ts apply --compile-only` — validate the map and write `.anon-kit/mask.sql` + `verify.sql`
+- `bun src/cli.ts apply` — mask the database and run the leak checks
+- `bun x tsc --noEmit` and `bun run format` before committing
+
+### How a strategy is built
+
+A strategy is two files in [src/strategies/](src/strategies/). Take zip3 from the strategy list above as an example. [zip3.ts](src/strategies/zip3.ts) is the descriptor: which column types the strategy accepts, how to build the masking SQL, and which leak check proves the mask ran. [zip3.sql](src/strategies/zip3.sql) holds the Postgres function the masking SQL calls. Every descriptor field is documented in [types.ts](src/strategies/types.ts), and a strategy that doesn't need its own Postgres function, like redact, skips the second file.
+
+### Adding masking strategies
+
+Create the two files, run `bun run schema` to regenerate the registry and the JSON schema, and add a fixture in [core.test.ts](src/core.test.ts) — the typecheck fails until the fixture exists.
+
+The anon extension's [masking functions](https://postgresql-anonymizer.readthedocs.io/en/stable/masking_functions/) are a good source of ideas for new strategies.
+
+### Removing masking strategies
+
+Delete the files, rerun `bun run schema`, and take it out of the tests and any map that uses it.
