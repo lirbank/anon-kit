@@ -15,6 +15,7 @@ import { createInterface } from "node:readline/promises";
 import postgres from "postgres";
 import {
   compileMask,
+  compileProbes,
   compileVerify,
   rewrittenFollowers,
   validate,
@@ -51,6 +52,21 @@ const { columns, fks } = await introspect(sql);
 const errors = validate(mapping, columns, fks);
 if (errors.length > 0) {
   for (const e of errors) console.error(`error: ${e}`);
+  process.exit(1);
+}
+
+// Probe each redact sentinel against its live column (no-op UPDATEs) so an
+// uncastable sentinel fails here, not mid-mask.
+const probeErrors: string[] = [];
+for (const p of compileProbes(mapping)) {
+  await sql.unsafe(p.sql).catch((e: unknown) => {
+    probeErrors.push(
+      `sentinel on ${p.table}.${p.column} does not cast to the column type (${(e as Error).message})`,
+    );
+  });
+}
+if (probeErrors.length > 0) {
+  for (const e of probeErrors) console.error(`error: ${e}`);
   process.exit(1);
 }
 

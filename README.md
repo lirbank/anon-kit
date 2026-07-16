@@ -132,7 +132,7 @@ Fake names of the form `Pat_a1b2c3d4` / `Doe_a1b2c3d4`, derived by hashing the o
 
 ### email
 
-Fake address at `example.invalid`; the local part is 10 hex chars hashed from the original.
+Fake address at `example.invalid`; the local part is 16 hex chars hashed from the original.
 
 ```json
 { "strategy": "email" }
@@ -161,6 +161,7 @@ Replaces every value with one sentinel, or NULL. The only strategy that leaves n
 ```
 
 - `sentinel` (required) — the replacement string, or `null` to null the column. `null` needs a nullable column; a sentinel keeps the schema identical to production, which is why it's the default recommendation on NOT NULL columns.
+- `apply` probes each sentinel against its live column up front, so one that can't be cast to the column type (say `"abc"` on an integer column) fails before anything is written.
 - The right default for anything devs don't actually need realistic values for. Reach for shape-preserving strategies only when something depends on the shape.
 - Leak check: every value equals the sentinel (or IS NULL).
 

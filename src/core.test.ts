@@ -4,6 +4,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   compileMask,
+  compileProbes,
   compileVerify,
   defaultMap,
   rewrittenFollowers,
@@ -433,6 +434,41 @@ describe("compileVerify", () => {
     expect(sql).toContain("'\\d{3}-\\d{2}-\\d{4}'");
     expect(sql).toContain("(email)");
     expect(sql).toContain("(phone)");
+  });
+});
+
+describe("compileProbes", () => {
+  test("probes redact sentinels and nothing else", () => {
+    const { mapping } = fixture();
+    expect(compileProbes(mapping)).toEqual([
+      {
+        table: "public.patients",
+        column: "ssn",
+        sql: `UPDATE "public"."patients" SET "ssn" = 'XXX-XX-XXXX' WHERE false`,
+      },
+    ]);
+  });
+
+  test("skips redact-to-null", () => {
+    const { mapping } = fixture();
+    mapping["public.patients"]!.ssn = {
+      strategy: "redact",
+      sentinel: null,
+      _pgType: "text",
+      _nullable: true,
+    };
+    expect(compileProbes(mapping)).toEqual([]);
+  });
+
+  test("quotes hostile identifiers and sentinels", () => {
+    const mapping: Mapping = {
+      "public.t": {
+        'we"ird': { strategy: "redact", sentinel: "O'Brien", ...txt },
+      },
+    };
+    expect(compileProbes(mapping)[0]!.sql).toBe(
+      `UPDATE "public"."t" SET "we""ird" = 'O''Brien' WHERE false`,
+    );
   });
 });
 

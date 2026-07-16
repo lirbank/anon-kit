@@ -277,6 +277,29 @@ export function compileVerify(mapping: Mapping): {
   };
 }
 
+// ------------------------------------------------------------------ probes
+
+// One no-op UPDATE per redact sentinel. WHERE false touches no rows, but
+// Postgres still coerces the literal to the column's type at parse time —
+// the same coercion the mask's UPDATE takes — so apply can fail an
+// uncastable sentinel (say "abc" on an integer column) before anything is
+// written. Redact-to-null needs no probe; validate owns the NOT NULL case.
+export function compileProbes(
+  mapping: Mapping,
+): { table: string; column: string; sql: string }[] {
+  return Object.entries(mapping).flatMap(([table, cols]) =>
+    Object.entries(cols)
+      .filter(
+        ([, r]) => r.strategy === "redact" && typeof r.sentinel === "string",
+      )
+      .map(([column, r]) => ({
+        table,
+        column,
+        sql: `UPDATE ${qualify(table)} SET ${quoteIdent(column)} = ${quoteLiteral(r.sentinel!)} WHERE false`,
+      })),
+  );
+}
+
 // -------------------------------------------------------------------- init
 
 // init's scaffold: every column listed, defaulted to "keep". FK columns are
