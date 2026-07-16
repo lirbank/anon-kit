@@ -233,10 +233,12 @@ Delete the files, rerun `bun run schema`, and take it out of the tests and any m
 
 ### Cutting a release
 
-Bump `version` in [package.json](package.json), commit, and push. Then publish a GitHub release whose tag is `v` plus that version:
+Set `version` in [package.json](package.json) to the new version and push to main. The [release workflow](.github/workflows/release.yml) publishes it to npm and creates the matching GitHub release.
 
-```sh
-gh release create v0.2.0 --title "v0.2.0" --notes "What changed"
-```
+- `1.2.0` publishes as `latest`, and must be newer than the current `latest`
+- `1.2.0-beta.1` publishes under the `beta` dist-tag, installable with `npm i anon-kit@beta`
+- To graduate a beta, set any stable version, like `1.2.0` or `1.3.0`
 
-Publishing the release triggers the [release workflow](.github/workflows/release.yml): it verifies the tag matches package.json's version, runs the tests and typecheck, builds `dist/`, and publishes to npm via [trusted publishing](https://docs.npmjs.com/trusted-publishers) — no npm tokens anywhere, and every release carries a provenance attestation. When the run goes green, verify with `npx anon-kit@latest` from an empty directory.
+The workflow releases only when package.json holds a version that is not yet on npm, so ordinary pushes publish nothing. A run that fails before publishing releases nothing either — fix and push, and the release completes on the next run.
+
+Verify with `npx anon-kit@latest` from an empty directory.
