@@ -2,12 +2,12 @@
 
 Mask sensitive data in any Postgres database.
 
-With anon-kit you can turn a database full of real names, emails, and identifiers into one you can safely hand to development, testing, or analytics.
+Point anon-kit at a copy of production, set a masking strategy per column, and apply. Real names, emails, and identifiers come out masked and verified by leak checks — a database you can hand to development, testing, or analytics.
 
-Three properties keep this safe:
+## Safety model
 
-- **Every column gets a decision.** Columns default to `keep`, and choosing it is an explicit claim that the column is not sensitive. A column that appears in the live schema but not in the map fails `apply` — new columns can never slip through unmasked.
-- **Leak checks prove the mask ran.** `apply` derives a verification query from the map; each strategy contributes a check that must return zero rows. Any leak exits non-zero.
+- **Every column gets a decision.** Columns default to `keep`, and leaving a column on `keep` is an explicit claim that it is not sensitive. A column that appears in the live schema but not in the map fails `apply` — new columns can never slip through unmasked.
+- **Leak checks prove the mask ran.** `apply` derives a verification query from the map; every strategy whose output is recognizable contributes a check that must return zero rows. Any leak exits non-zero.
 - **Masked values stay consistent.** Hash-based strategies key off a single salt, so within one run the same input masks to the same output — duplicates stay duplicates, joins keep resolving. The salt is generated per run and discarded, so nothing links an entity across runs.
 
 ## Usage
