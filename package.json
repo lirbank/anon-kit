@@ -1,6 +1,6 @@
 {
   "name": "anon-kit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Mask sensitive data in any Postgres database.",
   "license": "MIT",
   "author": "Mikael Lirbank",
