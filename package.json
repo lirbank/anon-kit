@@ -29,12 +29,13 @@
     "node": ">=22"
   },
   "scripts": {
+    "format:check": "prettier --check .",
+    "typecheck": "bunx tsc --noEmit",
+    "test": "bun test",
     "build": "bun build src/cli.ts --outdir dist --target node",
     "prepublishOnly": "bun run build",
-    "test": "bun test",
-    "typecheck": "bunx tsc --noEmit",
-    "schema": "bun dev/build-schema.ts && prettier --write anon-kit.schema.json src/strategies/registry.ts",
     "format": "prettier --write .",
+    "schema": "bun dev/build-schema.ts && prettier --write anon-kit.schema.json src/strategies/registry.ts",
     "seed": "bun dev/seed.ts"
   },
   "devDependencies": {
