@@ -90,7 +90,11 @@ One masking strategy per column, in the map (`anon-kit.json`). `init` writes it,
 ```json
 {
   "public.patients": {
-    "email": { "strategy": "email", "_pgType": "text", "_nullable": false },
+    "email": {
+      "strategy": "email",
+      "_pgType": "text",
+      "_nullable": false
+    },
     "ssn": {
       "strategy": "redact",
       "sentinel": "XXX-XX-XXXX",
