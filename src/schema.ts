@@ -10,15 +10,22 @@ export function buildMapSchema() {
   const params = Object.fromEntries(
     Object.values(STRATEGIES).flatMap((s) => Object.entries(s.params ?? {})),
   );
-  const allOf = Object.entries(STRATEGIES)
-    .filter(([, s]) => s.params || s.types)
-    .map(([name, s]) => ({
-      if: { properties: { strategy: { const: name } } },
-      then: {
-        ...(s.params ? { required: Object.keys(s.params) } : {}),
-        ...(s.types ? { properties: { _pgType: { enum: s.types } } } : {}),
+  const allOf = Object.entries(STRATEGIES).map(([name, s]) => ({
+    if: { properties: { strategy: { const: name } } },
+    then: {
+      ...(s.params ? { required: Object.keys(s.params) } : {}),
+      properties: {
+        // Params owned by other strategies are forbidden (false schema), so
+        // a stray "sentinel" on a keep column flags in the editor too.
+        ...Object.fromEntries(
+          Object.keys(params)
+            .filter((p) => !(s.params && p in s.params))
+            .map((p) => [p, false]),
+        ),
+        ...(s.types ? { _pgType: { enum: s.types } } : {}),
       },
-    }));
+    },
+  }));
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
     title: "Anonymization mapping",

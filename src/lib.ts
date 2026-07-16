@@ -56,7 +56,15 @@ export async function introspect(sql: postgres.Sql) {
     WHERE con.contype = 'f'
       AND child_ns.nspname NOT IN ('pg_catalog', 'information_schema')`;
 
-  return { columns: [...columns], fks: [...fks] };
+  // Materialized views keep their own copy of the data; information_schema
+  // never lists them, so they get their own query. apply refuses to run
+  // while any exist.
+  const matviews = await sql<{ schema: string; name: string }[]>`
+    SELECT schemaname AS schema, matviewname AS name
+    FROM pg_matviews
+    WHERE schemaname NOT IN ('pg_catalog', 'information_schema', 'anon_kit')`;
+
+  return { columns: [...columns], fks: [...fks], matviews: [...matviews] };
 }
 
 export const quoteIdent = (s: string) => `"${s.replaceAll('"', '""')}"`;

@@ -13,6 +13,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createInterface } from "node:readline/promises";
 import postgres from "postgres";
+import { homepage } from "../package.json";
 import {
   compileMask,
   compileProbes,
@@ -33,23 +34,35 @@ const skipConfirm = process.argv.includes("--yes");
 const url = process.env.ANON_KIT_DATABASE_URL;
 if (!url) {
   console.error(
-    "ANON_KIT_DATABASE_URL is not set — set it in the environment or in a .env file in the working directory",
+    `ANON_KIT_DATABASE_URL is not set — set it in the environment or in a .env file in the working directory\nSee ${homepage}`,
   );
   process.exit(1);
 }
 
-const { $schema: _, ...mapping }: Mapping & { $schema?: string } =
-  await readFile(MAP_FILE, "utf8")
-    .then((s) => JSON.parse(s))
-    .catch(() => {
-      console.error(`Cannot read ${MAP_FILE} — run anon-kit init first`);
-      process.exit(1);
-    });
+const raw = await readFile(MAP_FILE, "utf8").catch(() => {
+  console.error(`Cannot read ${MAP_FILE} — run anon-kit init first`);
+  process.exit(1);
+});
+
+let json: unknown;
+try {
+  json = JSON.parse(raw);
+} catch (e) {
+  console.error(`${MAP_FILE} is not valid JSON — ${(e as Error).message}`);
+  process.exit(1);
+}
+const { $schema: _, ...mapping } = json as Mapping & { $schema?: string };
 
 const sql = postgres(url, { max: 1, onnotice: () => {} });
-const { columns, fks } = await introspect(sql);
+const { columns, fks, matviews } = await introspect(sql);
 
 const errors = validate(mapping, columns, fks);
+// A materialized view holds its own copy of pre-mask data — masking the
+// base tables leaves it intact, and no leak check would ever see it.
+for (const v of matviews)
+  errors.push(
+    `materialized view ${v.schema}.${v.name} holds pre-mask data anon-kit cannot mask — drop it on this copy and recreate it after masking, so it rebuilds from masked tables`,
+  );
 if (errors.length > 0) {
   for (const e of errors) console.error(`error: ${e}`);
   process.exit(1);

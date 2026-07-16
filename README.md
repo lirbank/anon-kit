@@ -196,7 +196,7 @@ Replaces every value with one sentinel, or NULL. The only strategy that leaves n
 
 ### date_shift
 
-Shifts all of an entity's dates by the same hashed offset, up to ±364 days, so intervals between an entity's events hold.
+Shifts all of an entity's dates by the same hashed offset (±1–364 days, never zero), so intervals between an entity's events hold.
 
 ```json
 { "strategy": "date_shift", "key": "patient_id" }
@@ -228,6 +228,14 @@ Regex pass over free text replacing SSN, email, and phone patterns with `[SSN]`,
 
 - The weakest strategy: names and any other sensitive prose survive ("Patient Alice Garcia presented..." stays intact). Use it only when devs genuinely need the text; otherwise `redact`.
 - Leak check: the same three patterns return zero matches — it verifies the scrub ran, not that the text is clean.
+
+## Limitations
+
+- **Materialized views** hold their own copy of the data, so masking the base tables leaves them intact. `apply` refuses to run while any exist — drop them on the copy and recreate them after masking, so they rebuild from masked tables.
+- **Partitioned tables** are untested. Introspection lists the parent and each partition separately, so a masked partitioned table may be rewritten twice — for `hash_id` that breaks join consistency. Review `--compile-only` output before relying on it.
+- **Column length is not validated.** `hash_id` writes 64 characters and `email` 32; on a shorter `varchar(n)` the mask fails mid-run. The transaction rolls back — nothing is left half-masked — but the error surfaces at runtime, not at validation.
+- **Triggers fire during masking.** A trigger that copies old row values (audit logging) reintroduces real data mid-run, and rows it inserts are not masked. Disable user triggers on the copy (`ALTER TABLE … DISABLE TRIGGER USER`) before `apply` if any trigger records row values.
+- **Names containing a dot** can't be represented: the map keys are `schema.table`, so a table or column named with a literal `.` breaks the format.
 
 ## Contributing
 

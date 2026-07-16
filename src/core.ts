@@ -87,6 +87,19 @@ export function validate(
         );
         continue;
       }
+      // A param another strategy owns is worse than a typo: a "sentinel" on
+      // a keep column reads as redacted while shipping the real values.
+      const allowed = new Set([
+        "strategy",
+        "_pgType",
+        "_nullable",
+        ...Object.keys(strategy.params ?? {}),
+      ]);
+      for (const key of Object.keys(rule))
+        if (!allowed.has(key))
+          errors.push(
+            `"${key}" on ${table}.${column} is not a ${rule.strategy} setting — remove it`,
+          );
       const liveCol = live.get(`${table}.${column}`);
       if (strategy.types && liveCol && !strategy.types.includes(liveCol.pgType))
         errors.push(
@@ -186,8 +199,8 @@ export function compileMask(mapping: Mapping, fks: Fk[]): string {
   if (constraintFks.length > 0) mask.push("SET CONSTRAINTS ALL DEFERRED;", "");
 
   // Pass 1: one UPDATE per table for the value strategies. Every expression
-  // sees original row values (ID rewrite comes later), which is what keeps
-  // date_shift deterministic across runs.
+  // sees original row values (ID rewrite comes later), so date_shift keys on
+  // the original id and an entity's rows shift identically across tables.
   for (const [table, cols] of Object.entries(mapping)) {
     const sets = Object.entries(cols)
       .map(([column, rule]) => ({ column, e: maskExpr(column, rule) }))

@@ -65,6 +65,8 @@
             "then": {
               "required": ["key"],
               "properties": {
+                "references": false,
+                "sentinel": false,
                 "_pgType": {
                   "enum": ["date"]
                 }
@@ -81,6 +83,9 @@
             },
             "then": {
               "properties": {
+                "key": false,
+                "references": false,
+                "sentinel": false,
                 "_pgType": {
                   "enum": ["text", "character varying", "character"]
                 }
@@ -97,6 +102,9 @@
             },
             "then": {
               "properties": {
+                "key": false,
+                "references": false,
+                "sentinel": false,
                 "_pgType": {
                   "enum": ["text", "character varying", "character"]
                 }
@@ -112,7 +120,11 @@
               }
             },
             "then": {
-              "required": ["references"]
+              "required": ["references"],
+              "properties": {
+                "key": false,
+                "sentinel": false
+              }
             }
           },
           {
@@ -125,9 +137,28 @@
             },
             "then": {
               "properties": {
+                "key": false,
+                "references": false,
+                "sentinel": false,
                 "_pgType": {
                   "enum": ["text", "character varying"]
                 }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "strategy": {
+                  "const": "keep"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "key": false,
+                "references": false,
+                "sentinel": false
               }
             }
           },
@@ -141,6 +172,9 @@
             },
             "then": {
               "properties": {
+                "key": false,
+                "references": false,
+                "sentinel": false,
                 "_pgType": {
                   "enum": ["text", "character varying", "character"]
                 }
@@ -157,6 +191,9 @@
             },
             "then": {
               "properties": {
+                "key": false,
+                "references": false,
+                "sentinel": false,
                 "_pgType": {
                   "enum": ["text", "character varying", "character"]
                 }
@@ -172,7 +209,11 @@
               }
             },
             "then": {
-              "required": ["sentinel"]
+              "required": ["sentinel"],
+              "properties": {
+                "key": false,
+                "references": false
+              }
             }
           },
           {
@@ -185,6 +226,9 @@
             },
             "then": {
               "properties": {
+                "key": false,
+                "references": false,
+                "sentinel": false,
                 "_pgType": {
                   "enum": ["text", "character varying", "character"]
                 }
@@ -201,6 +245,9 @@
             },
             "then": {
               "properties": {
+                "key": false,
+                "references": false,
+                "sentinel": false,
                 "_pgType": {
                   "enum": ["text", "character varying", "character"]
                 }

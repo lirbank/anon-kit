@@ -223,6 +223,25 @@ describe("validate", () => {
     expect(validate(mapping, columns, fks)).toEqual([]);
   });
 
+  test("flags params that belong to a different strategy", () => {
+    const { columns, fks, mapping } = fixture();
+    mapping["public.patients"]!.first_name = {
+      strategy: "first_name",
+      key: "patient_id",
+      ...txt,
+    };
+    mapping["public.patients"]!.email = {
+      strategy: "keep",
+      sentinel: "XXX",
+      ...txt,
+    };
+    const errors = validate(mapping, columns, fks);
+    expect(errors).toEqual([
+      '"key" on public.patients.first_name is not a first_name setting — remove it',
+      '"sentinel" on public.patients.email is not a keep setting — remove it',
+    ]);
+  });
+
   test("flags follow_fk referencing an unknown column", () => {
     const { columns, fks, mapping } = fixture();
     mapping["public.encounters"]!.patient_id = {
@@ -431,7 +450,7 @@ describe("compileVerify", () => {
   test("scrub_text verifies all three scrubbed patterns", () => {
     const { mapping } = fixture();
     const { sql } = compileVerify(mapping);
-    expect(sql).toContain("'\\d{3}-\\d{2}-\\d{4}'");
+    expect(sql).toContain("'\\m\\d{3}-\\d{2}-\\d{4}\\M'");
     expect(sql).toContain("(email)");
     expect(sql).toContain("(phone)");
   });

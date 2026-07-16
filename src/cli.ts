@@ -3,7 +3,7 @@
 //
 // Usage: anon-kit <command> [flags]
 
-import { version } from "../package.json";
+import { homepage, version } from "../package.json";
 
 // Bun loads .env on its own; this loads it when running under Node.
 try {
@@ -43,6 +43,7 @@ if (!command) {
   for (const [name, c] of Object.entries(COMMANDS))
     console.log(`  ${name.padEnd(7)}${c.blurb}`);
   console.log("\nFlags:\n  --version, -v  Print the version");
+  console.log(`\nDocs: ${homepage}`);
   process.exit(cmd ? 1 : 0);
 }
 
