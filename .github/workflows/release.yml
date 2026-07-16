@@ -2,14 +2,14 @@ name: Release
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
 
 permissions:
   contents: read
 
-# One release at a time; never kill a publish in flight
+# One release per branch at a time; never kill a publish in flight
 concurrency:
-  group: release
+  group: release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -34,6 +34,12 @@ jobs:
             echo "anon-kit@$version is not on npm — releasing"
             echo "publish=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Refuse a stable version outside main
+        if: steps.check.outputs.publish == 'true' && !contains(steps.check.outputs.version, '-') && github.ref != 'refs/heads/main'
+        run: |
+          echo "Stable versions publish from main only — this push is ${{ github.ref_name }}"
+          exit 1
 
       - name: Refuse a stable version that is not newer than latest
         if: steps.check.outputs.publish == 'true' && !contains(steps.check.outputs.version, '-')

@@ -233,11 +233,11 @@ Delete the files, rerun `bun run schema`, and take it out of the tests and any m
 
 ### Cutting a release
 
-Set `version` in [package.json](package.json) to the new version and push to main. The [release workflow](.github/workflows/release.yml) publishes it to npm and creates the matching GitHub release.
+Set `version` in [package.json](package.json) to the new version and push. The [release workflow](.github/workflows/release.yml) publishes it to npm and creates the matching GitHub release.
 
-- `1.2.0` publishes as `latest`, and must be newer than the current `latest`
-- `1.2.0-beta.1` publishes under the `beta` dist-tag, installable with `npm i anon-kit@beta`
-- To graduate a beta, set any stable version, like `1.2.0` or `1.3.0`
+- Stable versions (`1.2.0`) publish as `latest`. They release from main only and must be newer than the current `latest`.
+- Prereleases (`1.2.0-beta.1`) publish under the `beta` dist-tag (`npm i anon-kit@beta`). They release from any branch, so a beta line never blocks stable releases from main.
+- To graduate a beta, set any stable version (`1.2.0`, `1.3.0`) and push to main.
 
 The workflow releases only when package.json holds a version that is not yet on npm, so ordinary pushes publish nothing. A run that fails before publishing releases nothing either — fix and push, and the release completes on the next run.
 
