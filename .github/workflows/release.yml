@@ -15,6 +15,7 @@ concurrency:
 jobs:
   gate:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       version: ${{ steps.check.outputs.version }}
       publish: ${{ steps.check.outputs.publish }}
@@ -37,22 +38,26 @@ jobs:
 
       - name: Refuse a stable version outside main
         if: steps.check.outputs.publish == 'true' && !contains(steps.check.outputs.version, '-') && github.ref != 'refs/heads/main'
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          echo "Stable versions publish from main only — this push is ${{ github.ref_name }}"
+          echo "Stable versions publish from main only — this push is $REF_NAME"
           exit 1
 
       - name: Refuse a stable version that is not newer than latest
         if: steps.check.outputs.publish == 'true' && !contains(steps.check.outputs.version, '-')
+        env:
+          VERSION: ${{ steps.check.outputs.version }}
         run: |
-          version="${{ steps.check.outputs.version }}"
           latest="$(npm view anon-kit dist-tags.latest)"
-          npx --yes semver "$version" -r ">$latest" > /dev/null ||
-            { echo "Version $version is not newer than latest ($latest)"; exit 1; }
+          npx --yes semver@7 "$VERSION" -r ">$latest" > /dev/null ||
+            { echo "Version $VERSION is not newer than latest ($latest)"; exit 1; }
 
   publish:
     needs: gate
     if: needs.gate.outputs.publish == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write # create the release tag
       id-token: write # npm trusted publishing (OIDC)
@@ -77,16 +82,25 @@ jobs:
       # attaches provenance automatically. Prereleases go under the beta
       # dist-tag so latest always points at a stable version.
       - name: Publish to npm
+        env:
+          VERSION: ${{ needs.gate.outputs.version }}
         run: |
-          version="${{ needs.gate.outputs.version }}"
-          case "$version" in
+          case "$VERSION" in
             *-*) npm publish --tag beta ;;
             *) npm publish ;;
           esac
 
+      # --target pins the tag to the released commit; prereleases are marked
+      # so GitHub never shows a beta as the latest release.
       - name: Create the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.gate.outputs.version }}
+          TARGET: ${{ github.sha }}
         run: |
-          version="${{ needs.gate.outputs.version }}"
-          gh release create "v$version" --title "v$version" --generate-notes
+          case "$VERSION" in
+            *-*) prerelease="--prerelease" ;;
+            *) prerelease="" ;;
+          esac
+          gh release create "v$VERSION" --title "v$VERSION" \
+            --target "$TARGET" --generate-notes $prerelease

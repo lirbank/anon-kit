@@ -38,7 +38,7 @@
     "seed": "bun dev/seed.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest",
+    "@types/bun": "^1",
     "postgres": "^3.4.9",
     "prettier": "^3.9.5",
     "typescript": "^7.0.2"
