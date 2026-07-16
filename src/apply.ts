@@ -31,7 +31,9 @@ const skipConfirm = process.argv.includes("--yes");
 
 const url = process.env.ANON_KIT_DATABASE_URL;
 if (!url) {
-  console.error("ANON_KIT_DATABASE_URL is not set (see .env.example)");
+  console.error(
+    "ANON_KIT_DATABASE_URL is not set — set it in the environment or in a .env file in the working directory",
+  );
   process.exit(1);
 }
 
