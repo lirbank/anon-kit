@@ -10,31 +10,51 @@ Three properties keep this safe:
 - **Leak checks prove the mask ran.** `apply` derives a verification query from the map; each strategy contributes a check that must return zero rows. Any leak exits non-zero.
 - **Masked values stay consistent.** Hash-based strategies key off a single salt, so within one run the same input masks to the same output — duplicates stay duplicates, joins keep resolving. The salt is generated per run and discarded, so nothing links an entity across runs.
 
-## Quick start
+## Usage
 
-`init` writes `anon-kit.json` with every table and column listed. Choose a masking strategy for each sensitive column, then `apply` compiles the map to SQL, rewrites the data in place, and runs leak checks that must come back clean.
+> **anon-kit rewrites data in place.** Point `ANON_KIT_DATABASE_URL` at a copy of production, never at production itself — masking production destroys the real data.
 
-```sh
-npx anon-kit init    # introspects the database, writes anon-kit.json
-# edit anon-kit.json: set a strategy on each sensitive column
-npx anon-kit apply   # masks the database in place, runs the leak checks
-```
+1. Get a connection string to the database to mask — a copy of production (see [Getting a copy to mask](#getting-a-copy-to-mask)).
 
-anon-kit connects to one database: `ANON_KIT_DATABASE_URL`, set in the environment or in a `.env` file in the working directory (see [.env.example](.env.example)).
+2. Set `ANON_KIT_DATABASE_URL`, in the environment or in a `.env` file in the working directory:
 
-## Configuration
+   ```sh
+   export ANON_KIT_DATABASE_URL="postgres://..."
+   ```
 
-`ANON_KIT_DATABASE_URL` is the database anon-kit introspects and masks. Point it at a copy of production, never at production itself — masking rewrites the data.
+3. Generate the map:
 
-### Getting a copy to mask
+   ```sh
+   npx anon-kit init
+   ```
 
-- **[Neon](https://neon.com/)** — create a branch of production in the console or with `neon branches create`, and use the branch's connection string.
-- **[Databricks Lakebase](https://www.databricks.com/product/lakebase)** — create a branch of the database in the console or with the Databricks CLI, and use the branch's connection string with an OAuth token (`databricks auth token`) as the password.
+   `init` introspects the database and writes `anon-kit.json` with every table and column listed.
+
+4. Edit `anon-kit.json`: set a masking strategy on each sensitive column (see [Masking strategies](#masking-strategies)). A column left on `keep` ships its real values.
+
+5. Mask the database:
+
+   ```sh
+   npx anon-kit apply
+   ```
+
+   `apply` compiles the map to SQL, asks you to confirm the target host, masks the database in place, and runs leak checks that must come back clean.
+
+The copy now holds masked data — hand it to development, testing, or analytics.
+
+## Getting a copy to mask
+
+`apply` masks whatever `ANON_KIT_DATABASE_URL` points at, so the first step is a disposable copy of production:
+
+- **[Neon](https://neon.com/)** — create a database branch of production in the console or with `neon branches create`, and use the branch's connection string.
+- **[Databricks Lakebase](https://www.databricks.com/product/lakebase)** — create a database branch in the console or with the Databricks CLI, and use the branch's connection string with an OAuth token (`databricks auth token`) as the password.
 - **Any Postgres** — restore a dump into a scratch database (`pg_dump` production, `pg_restore` into the copy).
 
-Branches make this instant at any database size: the branch is born with production's schema and data, and a fresh copy is one command away. To refresh a masked copy, recreate the branch and run `apply` again.
+On Neon and Lakebase the copy is instant at any database size: a database branch is born with production's schema and data, and a fresh one is a single command away. The payoff compounds after masking: development, testing, and analytics branch instantly off the one masked branch instead of each masking their own copy — masking a large database takes time, branching takes none. To refresh a masked copy, recreate the branch and run `apply` again.
 
 ## Commands
+
+Both commands connect to the database at `ANON_KIT_DATABASE_URL`, read from the environment or from a `.env` file in the working directory. Running `npx anon-kit` with no command prints usage.
 
 ### init
 
@@ -52,7 +72,16 @@ npx anon-kit apply [--compile-only] [--yes]
 
 Validates the map against the live schema, compiles it to `.anon-kit/mask.sql` and `verify.sql`, prints the target host for confirmation, masks the database, and runs the leak checks. Exits non-zero on any leak or on schema drift, so a bad copy never gets handed out.
 
-`--compile-only` writes the generated SQL and stops, so you can review exactly what would run. `--yes` skips the confirmation prompt.
+- `--compile-only` — write the generated SQL and stop, to review exactly what would run.
+- `--yes` — skip the confirmation prompt, for CI where the URL is machine-placed.
+
+### --version
+
+```
+npx anon-kit --version
+```
+
+Prints the version. `-v` is the short form.
 
 ## Masking strategies
 

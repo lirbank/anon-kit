@@ -42,6 +42,7 @@ if (!command) {
   );
   for (const [name, c] of Object.entries(COMMANDS))
     console.log(`  ${name.padEnd(7)}${c.blurb}`);
+  console.log("\nFlags:\n  --version, -v  Print the version");
   process.exit(cmd ? 1 : 0);
 }
 
