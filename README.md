@@ -75,14 +75,6 @@ Validates the map against the live schema, compiles it to `.anon-kit/mask.sql` a
 - `--compile-only` — write the generated SQL and stop, to review exactly what would run.
 - `--yes` — skip the confirmation prompt, for CI where the URL is machine-placed.
 
-### --version
-
-```
-npx anon-kit --version
-```
-
-Prints the version. `-v` is the short form.
-
 ## Masking strategies
 
 One masking strategy per column, in the map (`anon-kit.json`). `init` writes it, you edit it, `apply` compiles it to SQL.
