@@ -8,9 +8,7 @@
       "type": "registry:item",
       "title": "anon-kit",
       "description": "Mask sensitive data in any Postgres database.",
-      "dependencies": [
-        "postgres"
-      ],
+      "dependencies": ["postgres"],
       "files": [
         {
           "path": "src/apply.ts",
