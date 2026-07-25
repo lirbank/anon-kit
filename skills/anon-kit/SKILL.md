@@ -10,7 +10,7 @@ anon-kit masks a copy of a Postgres database in place: one masking strategy per 
 ## Step 1: install the recipe
 
 ```sh
-npx shadcn@latest add lirbank/anon-kit/anon-kit
+npx shadcn@latest add lirbank/anon-kit/anon-kit#recipe
 ```
 
 This copies the source to `tools/anon-kit/` and adds `bun` and `postgres` as devDependencies. If `tools/anon-kit/` already exists, it has likely been adapted to this repository — do not reinstall over it without asking the user.
