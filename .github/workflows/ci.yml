@@ -29,4 +29,5 @@ jobs:
       - run: node dist/cli.js
       # From an empty cwd so no .env or map is picked up — the expected
       # failure proves the whole bundle loaded and reached the env check
+      - run: cd "$RUNNER_TEMP" && node "$GITHUB_WORKSPACE/dist/cli.js" init 2>&1 | grep -q "ANON_KIT_DATABASE_URL is not set"
       - run: cd "$RUNNER_TEMP" && node "$GITHUB_WORKSPACE/dist/cli.js" apply 2>&1 | grep -q "ANON_KIT_DATABASE_URL is not set"
