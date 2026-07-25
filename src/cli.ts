@@ -1,4 +1,3 @@
-#!/usr/bin/env bun
 // Entry point: routes subcommands to the command scripts.
 //
 // Usage: anon-kit <command> [flags]
