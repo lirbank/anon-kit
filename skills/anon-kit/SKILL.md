@@ -5,15 +5,29 @@ description: "Mask sensitive data in a copy of a Postgres database so it can be 
 
 # anon-kit
 
-anon-kit masks a copy of a Postgres database in place: one masking strategy per column, compiled to SQL, verified by leak checks. It is a recipe — the source installs into this repository under `tools/anon-kit/` and is yours to adapt.
+anon-kit masks a copy of a Postgres database in place: one masking strategy per column, compiled to SQL, verified by leak checks. It is a recipe — the source is a starting point that becomes part of this repository, yours to adapt.
 
-## Step 1: install the recipe
+## Step 1: determine the codebase type
+
+Check what stack this repository uses.
+
+**TypeScript or JavaScript** (a package.json at the root): install the recipe as-is.
 
 ```sh
 npx shadcn@latest add lirbank/anon-kit/anon-kit#recipe
 ```
 
-This copies the source to `tools/anon-kit/` and adds `bun` and `postgres` as devDependencies. If `tools/anon-kit/` already exists, it has likely been adapted to this repository — do not reinstall over it without asking the user.
+This copies the source to `tools/anon-kit/` and adds `postgres` as a devDependency. Then add a script to package.json so the command is discoverable:
+
+```json
+"anon-kit": "npx bun tools/anon-kit/cli.ts"
+```
+
+If `tools/anon-kit/` already exists, it has likely been adapted to this repository — do not reinstall over it without asking the user.
+
+**Anything else** (Python, Go, ...): translate the recipe. Read the reference implementation at https://github.com/lirbank/anon-kit (`src/`) and port it to this repository's stack. The masking logic lives in the `.sql` files and generated SQL — a port reuses those as-is and reimplements the thin compiler and CLI around them. The contract to preserve: the `anon-kit.json` map (one strategy per column), the leak checks, and failing closed on any mismatch between map and live schema.
+
+The steps below use the TypeScript commands; on a translated port, use its equivalents.
 
 ## Step 2: point at a copy of production
 
