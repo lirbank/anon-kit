@@ -25,4 +25,4 @@ jobs:
       - run: bun run test
       - run: bun run build
       # The package runs under node (bin), not bun — smoke the built artifact
-      - run: node dist/cli.js --version
+      - run: node dist/cli.js
