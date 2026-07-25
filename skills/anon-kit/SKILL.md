@@ -27,15 +27,15 @@ If `tools/anon-kit/` already exists, it has likely been adapted to this reposito
 
 ### Option 2 - any other codebase
 
-Translate the recipe. Read the reference implementation at https://github.com/lirbank/anon-kit (`src/`) and port it to this repository's stack. The masking logic lives in the `.sql` files and generated SQL — a port reuses those as-is and reimplements the thin compiler and CLI around them. The contract to preserve: the `anon-kit.json` map (one strategy per column), the leak checks, and failing closed on any mismatch between map and live schema.
+Translate the recipe. Read the reference implementation at https://github.com/lirbank/anon-kit (`src/`) and port it to this repository's stack — the masking logic is plain SQL, so it carries over. The contract to preserve: the `anon-kit.json` map (one strategy per column), the leak checks, and failing closed on any mismatch between map and live schema.
 
 The steps below use the TypeScript commands; on a translated port, use its equivalents.
 
 ## Step 2: point at a copy of production
 
-`apply` rewrites data in place. It must run against a disposable copy of production, never production itself.
+`apply` rewrites data in place. It must run against a disposable copy of production, never production itself — if it is not certain that a connection string points at a copy, confirm with the user before continuing.
 
-Ask the user for the connection string of a copy — on Neon or Lakebase, a database branch of production; on plain Postgres, a restored dump. Set it as `ANON_KIT_DATABASE_URL` in the environment or in a `.env` file in the repository root.
+Set the copy's connection string as `ANON_KIT_DATABASE_URL` in the environment or in a `.env` file in the repository root.
 
 ## Step 3: generate the map
 
