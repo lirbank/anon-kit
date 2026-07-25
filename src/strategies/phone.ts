@@ -2,7 +2,7 @@
 // North-American shape only.
 
 import sql from "./phone.sql" with { type: "text" };
-import { TEXT_TYPES, type Strategy } from "./types";
+import { TEXT_TYPES, type Strategy } from "./types.ts";
 
 export const phone: Strategy = {
   types: TEXT_TYPES,

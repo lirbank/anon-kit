@@ -7,8 +7,8 @@
 // leak checks, validation, and params by construction — there is nowhere
 // left to forget one.
 
-import type { RuleParams } from "./types";
-import { STRATEGIES } from "./registry";
+import type { RuleParams } from "./types.ts";
+import { STRATEGIES } from "./registry.ts";
 
 export { STRATEGIES };
 
@@ -34,4 +34,4 @@ export type {
   RuleParams,
   Strategy,
   ValidateCtx,
-} from "./types";
+} from "./types.ts";

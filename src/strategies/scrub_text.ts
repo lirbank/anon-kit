@@ -5,7 +5,7 @@
 // glued to a word, no \m boundary) fails verify with no fix possible.
 
 import sql from "./scrub_text.sql" with { type: "text" };
-import { TEXT_TYPES, type Strategy } from "./types";
+import { TEXT_TYPES, type Strategy } from "./types.ts";
 
 export const scrub_text: Strategy = {
   types: TEXT_TYPES,

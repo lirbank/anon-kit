@@ -2,8 +2,8 @@
 // column got. Declares intent rather than doing work — the ID pass rewrites
 // the values, so a soft FK (no constraint) masks exactly like a declared one.
 
-import { hashedCond } from "./hash_id";
-import type { Strategy } from "./types";
+import { hashedCond } from "./hash_id.ts";
+import type { Strategy } from "./types.ts";
 
 export const follow_fk: Strategy = {
   expr: null, // rewritten in the ID pass, not pass 1

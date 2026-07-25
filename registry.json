@@ -8,7 +8,8 @@
       "type": "registry:item",
       "title": "anon-kit",
       "description": "Mask sensitive data in any Postgres database.",
-      "dependencies": ["postgres"],
+      "docs": "Docs: https://github.com/lirbank/anon-kit",
+      "devDependencies": ["bun", "postgres"],
       "files": [
         {
           "path": "src/apply.ts",

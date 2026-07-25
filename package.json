@@ -32,7 +32,7 @@
     "format:check": "prettier --check .",
     "typecheck": "bunx tsc --noEmit",
     "test": "bun test",
-    "build": "bun build src/cli.ts --outdir dist --target node",
+    "build": "bun build src/cli.ts --outdir dist --target node && sed '1s|/env bun|/env node|' dist/cli.js > dist/cli.tmp && mv dist/cli.tmp dist/cli.js",
     "prepublishOnly": "bun run build",
     "format": "prettier --write .",
     "schema": "bun dev/build-schema.ts && prettier --write anon-kit.schema.json src/strategies/registry.ts",

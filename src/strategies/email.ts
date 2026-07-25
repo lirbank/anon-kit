@@ -2,7 +2,7 @@
 // Shape-valid so app-level validation keeps passing; .invalid never routes.
 
 import sql from "./email.sql" with { type: "text" };
-import { TEXT_TYPES, type Strategy } from "./types";
+import { TEXT_TYPES, type Strategy } from "./types.ts";
 
 export const email: Strategy = {
   types: TEXT_TYPES,

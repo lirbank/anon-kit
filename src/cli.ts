@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 // Entry point: routes subcommands to the command scripts.
 //
 // Usage: anon-kit <command> [flags]
@@ -15,11 +15,11 @@ const COMMANDS: Record<
   { load: () => Promise<unknown>; blurb: string }
 > = {
   init: {
-    load: () => import("./init"),
+    load: () => import("./init.ts"),
     blurb: "Introspect the database and scaffold anon-kit.json",
   },
   apply: {
-    load: () => import("./apply"),
+    load: () => import("./apply.ts"),
     blurb: "Mask the database and run leak checks [--compile-only] [--yes]",
   },
 };
@@ -33,7 +33,6 @@ if (!command) {
   console.log(`anon-kit\n\nUsage: anon-kit <command> [flags]\n\nCommands:`);
   for (const [name, c] of Object.entries(COMMANDS))
     console.log(`  ${name.padEnd(7)}${c.blurb}`);
-  console.log("\nDocs: https://github.com/lirbank/anon-kit");
   process.exit(cmd ? 1 : 0);
 }
 

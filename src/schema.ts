@@ -4,7 +4,7 @@
 // param properties and required-when-chosen rules from each entry's params,
 // and the _pgType compatibility rules from each entry's types.
 
-import { STRATEGIES, STRATEGY_NAMES } from "./strategies";
+import { STRATEGIES, STRATEGY_NAMES } from "./strategies/index.ts";
 
 export function buildMapSchema() {
   const params = Object.fromEntries(

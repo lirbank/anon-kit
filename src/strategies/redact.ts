@@ -1,8 +1,8 @@
 // Replaces every value with one sentinel, or NULL. The only strategy that
 // leaves no per-row signal at all.
 
-import { quoteLiteral } from "../lib";
-import type { Strategy } from "./types";
+import { quoteLiteral } from "../lib.ts";
+import type { Strategy } from "./types.ts";
 
 export const redact: Strategy = {
   expr: (_, rule) =>

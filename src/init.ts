@@ -9,9 +9,9 @@
 import { existsSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import postgres from "postgres";
-import { homepage } from "../package.json";
-import { defaultMap } from "./core";
-import { introspect } from "./lib";
+
+import { defaultMap } from "./core.ts";
+import { introspect } from "./lib.ts";
 
 const MAP_FILE = "anon-kit.json";
 // Hosted from this repo's main branch so editors can fetch it anonymously
@@ -22,7 +22,7 @@ const SCHEMA_REF =
 const url = process.env.ANON_KIT_DATABASE_URL;
 if (!url) {
   console.error(
-    `ANON_KIT_DATABASE_URL is not set — set it in the environment or in a .env file in the working directory\nSee ${homepage}`,
+    `ANON_KIT_DATABASE_URL is not set — set it in the environment or in a .env file in the working directory`,
   );
   process.exit(1);
 }
