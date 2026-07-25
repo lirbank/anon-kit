@@ -7,17 +7,17 @@ description: "Mask sensitive data in a copy of a Postgres database so it can be 
 
 anon-kit masks a copy of a Postgres database in place: one masking strategy per column, compiled to SQL, verified by leak checks. It is a recipe — the source is a starting point that becomes part of this repository, yours to adapt.
 
-## Step 1: determine the codebase type
+## Step 1: pick the install path
 
-Check what stack this repository uses.
+Follow exactly one of these paths, based on this repository's stack.
 
-**TypeScript or JavaScript** (a package.json at the root): install the recipe as-is.
+### Option 1 - TypeScript or JavaScript codebase
 
 ```sh
 npx shadcn@latest add lirbank/anon-kit/anon-kit#recipe
 ```
 
-This copies the source to `tools/anon-kit/` and adds `postgres` as a devDependency. Then add a script to package.json so the command is discoverable:
+This copies the source to `tools/anon-kit/` and adds `postgres` as a devDependency. Add a script to package.json so the command is discoverable:
 
 ```json
 "anon-kit": "npx bun tools/anon-kit/cli.ts"
@@ -25,7 +25,9 @@ This copies the source to `tools/anon-kit/` and adds `postgres` as a devDependen
 
 If `tools/anon-kit/` already exists, it has likely been adapted to this repository — do not reinstall over it without asking the user.
 
-**Anything else** (Python, Go, ...): translate the recipe. Read the reference implementation at https://github.com/lirbank/anon-kit (`src/`) and port it to this repository's stack. The masking logic lives in the `.sql` files and generated SQL — a port reuses those as-is and reimplements the thin compiler and CLI around them. The contract to preserve: the `anon-kit.json` map (one strategy per column), the leak checks, and failing closed on any mismatch between map and live schema.
+### Option 2 - any other codebase
+
+Translate the recipe. Read the reference implementation at https://github.com/lirbank/anon-kit (`src/`) and port it to this repository's stack. The masking logic lives in the `.sql` files and generated SQL — a port reuses those as-is and reimplements the thin compiler and CLI around them. The contract to preserve: the `anon-kit.json` map (one strategy per column), the leak checks, and failing closed on any mismatch between map and live schema.
 
 The steps below use the TypeScript commands; on a translated port, use its equivalents.
 
