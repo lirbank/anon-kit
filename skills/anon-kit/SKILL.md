@@ -17,7 +17,7 @@ Follow exactly one of these paths, based on this repository's stack.
 npx shadcn@latest add lirbank/anon-kit/anon-kit#recipe
 ```
 
-This copies the source to `tools/anon-kit/` and adds `postgres` as a devDependency. Add a script to package.json so the command is discoverable:
+Add a script to package.json so the command is discoverable:
 
 ```json
 "anon-kit": "npx bun tools/anon-kit/cli.ts"
@@ -43,11 +43,9 @@ Set the copy's connection string as `ANON_KIT_DATABASE_URL` in the environment o
 npx bun tools/anon-kit/cli.ts init
 ```
 
-This introspects the database and writes `anon-kit.json` with every table and column listed.
-
 ## Step 4: draft the map, then stop for review
 
-Set a masking strategy on each sensitive column in `anon-kit.json`. The available strategies are the files in `tools/anon-kit/strategies/` — each descriptor documents what it masks and how. A column left on `keep` ships its real values: keep is an explicit claim that the column is not sensitive.
+Set a masking strategy on each sensitive column in `anon-kit.json` — read the recipe (the README and the descriptors in `tools/anon-kit/strategies/`) for what each strategy does.
 
 Present the drafted map to the user for review before applying. Flag every judgment call — columns you are unsure about, free-text columns that may hold names, and anything left on `keep` that could be personal data.
 
@@ -56,8 +54,6 @@ Present the drafted map to the user for review before applying. Flag every judgm
 ```sh
 npx bun tools/anon-kit/cli.ts apply
 ```
-
-This compiles the map to SQL, asks for confirmation of the target host, masks the database in place, and runs leak checks that must come back clean.
 
 ## Invariants
 
