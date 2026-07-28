@@ -8,7 +8,7 @@ Point anon-kit at a copy of production, set a masking strategy per column, and a
 
 Paste this into your coding agent:
 
-> Install the anon-kit skill with `npx skills add https://github.com/lirbank/anon-kit/tree/recipe --skill anon-kit`, then follow it to mask a copy of my Postgres database.
+> Install the anon-kit skill with `npx skills add lirbank/anon-kit --skill anon-kit`, then follow it to mask a copy of my Postgres database.
 
 The skill walks your agent through installing the anon-kit source into your repository, generating the map, and masking a copy of your database.
 

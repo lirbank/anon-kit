@@ -14,7 +14,7 @@ Follow exactly one of these paths, based on this repository's stack.
 ### Option 1 - TypeScript or JavaScript codebase
 
 ```sh
-npx shadcn@latest add lirbank/anon-kit/anon-kit#recipe
+npx shadcn@latest add lirbank/anon-kit/anon-kit
 ```
 
 Add a script to package.json so the command is discoverable:
