@@ -18,7 +18,19 @@ The skill walks your agent through installing the anon-kit source into your repo
 - **Leak checks prove the mask ran.** `apply` derives a verification query from the map; every strategy whose output is recognizable contributes a check that must return zero rows. Any leak exits non-zero.
 - **Masked values stay consistent.** Hash-based strategies key off a single salt, so within one run the same input masks to the same output — duplicates stay duplicates, joins keep resolving. The salt is generated per run and discarded, so nothing links an entity across runs.
 
-## Usage
+## Getting a copy to mask
+
+`apply` masks whatever `ANON_KIT_DATABASE_URL` points at, so the first step is a disposable copy of production:
+
+- **[Neon](https://neon.com/)** — create a database branch of production in the console or with `neon branches create`, and use the branch's connection string.
+- **[Databricks Lakebase](https://www.databricks.com/product/lakebase)** — create a database branch in the console or with the Databricks CLI, and use the branch's connection string with an OAuth token (`databricks auth token`) as the password.
+- **Any Postgres** — restore a dump into a scratch database (`pg_dump` production, `pg_restore` into the copy).
+
+On Neon and Lakebase the copy is instant at any database size: a database branch is born with production's schema and data, and a fresh one is a single command away. The payoff compounds after masking: development, testing, and analytics branch instantly off the one masked branch instead of each masking their own copy — masking a large database takes time, branching takes none. To refresh a masked copy, recreate the branch and run `apply` again.
+
+## npm package
+
+### Usage
 
 > **anon-kit rewrites data in place.** Point `ANON_KIT_DATABASE_URL` at a copy of production, never at production itself — masking production destroys the real data.
 
@@ -50,21 +62,11 @@ The skill walks your agent through installing the anon-kit source into your repo
 
 The copy now holds masked data — hand it to development, testing, or analytics.
 
-## Getting a copy to mask
-
-`apply` masks whatever `ANON_KIT_DATABASE_URL` points at, so the first step is a disposable copy of production:
-
-- **[Neon](https://neon.com/)** — create a database branch of production in the console or with `neon branches create`, and use the branch's connection string.
-- **[Databricks Lakebase](https://www.databricks.com/product/lakebase)** — create a database branch in the console or with the Databricks CLI, and use the branch's connection string with an OAuth token (`databricks auth token`) as the password.
-- **Any Postgres** — restore a dump into a scratch database (`pg_dump` production, `pg_restore` into the copy).
-
-On Neon and Lakebase the copy is instant at any database size: a database branch is born with production's schema and data, and a fresh one is a single command away. The payoff compounds after masking: development, testing, and analytics branch instantly off the one masked branch instead of each masking their own copy — masking a large database takes time, branching takes none. To refresh a masked copy, recreate the branch and run `apply` again.
-
-## Commands
+### Commands
 
 Both commands connect to the database at `ANON_KIT_DATABASE_URL`, read from the environment or from a `.env` file in the working directory. Running `npx anon-kit` with no command prints usage.
 
-### init
+#### init
 
 ```
 npx anon-kit init
@@ -72,7 +74,7 @@ npx anon-kit init
 
 Introspects `ANON_KIT_DATABASE_URL` and writes `anon-kit.json`. Every column starts as `keep`; foreign keys are prefilled with `follow_fk`. The file's `$schema` reference gives editor autocomplete and typo-flagging while you edit. Refuses to overwrite an existing map.
 
-### apply
+#### apply
 
 ```
 npx anon-kit apply [--compile-only] [--yes]
@@ -82,6 +84,18 @@ Validates the map against the live schema, compiles it to `.anon-kit/mask.sql` a
 
 - `--compile-only` — write the generated SQL and stop, to review exactly what would run.
 - `--yes` — skip the confirmation prompt, for CI where the URL is machine-placed.
+
+### Cutting a release
+
+Set `version` in [package.json](package.json) to the new version and push. The [release workflow](.github/workflows/release.yml) publishes it to npm and creates the matching GitHub release.
+
+- Stable versions (`1.2.0`) publish as `latest`. They release from main only and must be newer than the current `latest`.
+- Prereleases (`1.2.0-beta.1`) publish under the `beta` dist-tag (`npm i anon-kit@beta`). They release from any branch, so a beta line never blocks stable releases from main.
+- To graduate a beta, set any stable version (`1.2.0`, `1.3.0`) and push to main.
+
+The workflow releases only when package.json holds a version that is not yet on npm, so ordinary pushes publish nothing. A run that fails before publishing releases nothing either — fix and push, and the release completes on the next run.
+
+Verify with `npx anon-kit@latest` from an empty directory.
 
 ## Masking strategies
 
@@ -272,15 +286,3 @@ The anon extension's [masking functions](https://postgresql-anonymizer.readthedo
 ### Removing masking strategies
 
 Delete the files, rerun `bun run schema`, and take it out of the tests and any map that uses it.
-
-### Cutting a release
-
-Set `version` in [package.json](package.json) to the new version and push. The [release workflow](.github/workflows/release.yml) publishes it to npm and creates the matching GitHub release.
-
-- Stable versions (`1.2.0`) publish as `latest`. They release from main only and must be newer than the current `latest`.
-- Prereleases (`1.2.0-beta.1`) publish under the `beta` dist-tag (`npm i anon-kit@beta`). They release from any branch, so a beta line never blocks stable releases from main.
-- To graduate a beta, set any stable version (`1.2.0`, `1.3.0`) and push to main.
-
-The workflow releases only when package.json holds a version that is not yet on npm, so ordinary pushes publish nothing. A run that fails before publishing releases nothing either — fix and push, and the release completes on the next run.
-
-Verify with `npx anon-kit@latest` from an empty directory.
