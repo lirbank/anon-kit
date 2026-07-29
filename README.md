@@ -16,6 +16,8 @@ The skill guides your agent to build a bespoke masking solution for your project
 
 ## Safety model
 
+> **anon-kit rewrites data in place.** Point `ANON_KIT_DATABASE_URL` at a copy of production, never at production itself — masking production destroys the real data.
+
 - **Every column gets a decision.** Columns default to `keep`, and leaving a column on `keep` is an explicit claim that it is not sensitive. A column that appears in the live schema but not in the map fails `apply` — new columns can never slip through unmasked.
 - **Leak checks prove the mask ran.** `apply` derives a verification query from the map; every strategy whose output is recognizable contributes a check that must return zero rows. Any leak exits non-zero.
 - **Masked values stay consistent.** Hash-based strategies key off a single salt, so within one run the same input masks to the same output — duplicates stay duplicates, joins keep resolving. The salt is generated per run and discarded, so nothing links an entity across runs.
@@ -32,9 +34,9 @@ On Neon and Lakebase the copy is instant at any database size: a database branch
 
 ## npm package
 
-### Usage
+The npm package provides anon-kit as a standalone CLI instead of adding the recipe to your repository.
 
-> **anon-kit rewrites data in place.** Point `ANON_KIT_DATABASE_URL` at a copy of production, never at production itself — masking production destroys the real data.
+### Usage
 
 1. Get a connection string to the database to mask — a copy of production (see [Getting a copy to mask](#getting-a-copy-to-mask)).
 
