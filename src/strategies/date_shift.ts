@@ -4,8 +4,8 @@
 // dates by pattern.
 
 import sql from "./date_shift.sql" with { type: "text" };
-import { quoteIdent } from "../lib";
-import type { Strategy } from "./types";
+import { quoteIdent } from "../lib.ts";
+import type { Strategy } from "./types.ts";
 
 export const date_shift: Strategy = {
   // Matches anon_kit.date_shift(d date, ...) — timestamps are not supported.

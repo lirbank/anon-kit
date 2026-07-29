@@ -3,7 +3,7 @@
 // follow_fk pointing at it from one old→new map. Text columns only in v1.
 
 import sql from "./hash_id.sql" with { type: "text" };
-import type { Strategy } from "./types";
+import type { Strategy } from "./types.ts";
 
 // Shared with follow_fk: followers of a hashed column inherit this shape.
 export const hashedCond = (c: string) => `${c} !~ '^[0-9a-f]{64}$'`;

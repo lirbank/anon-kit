@@ -2,6 +2,7 @@
   "compilerOptions": {
     "types": ["bun"],
     "module": "preserve",
+    "allowImportingTsExtensions": true,
 
     "moduleDetection": "force",
     "verbatimModuleSyntax": true,

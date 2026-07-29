@@ -9,14 +9,14 @@ import {
   defaultMap,
   rewrittenFollowers,
   validate,
-} from "./core";
-import { type Column, type Fk } from "./lib";
+} from "./core.ts";
+import { type Column, type Fk } from "./lib.ts";
 import {
   STRATEGY_NAMES,
   type ColumnRule,
   type Mapping,
   type StrategyName,
-} from "./strategies";
+} from "./strategies/index.ts";
 
 const col = (
   schema: string,

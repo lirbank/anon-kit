@@ -2,7 +2,7 @@
 // masks the same way within a run, and the result is obviously fake.
 
 import sql from "./first_name.sql" with { type: "text" };
-import { TEXT_TYPES, type Strategy } from "./types";
+import { TEXT_TYPES, type Strategy } from "./types.ts";
 
 export const first_name: Strategy = {
   types: TEXT_TYPES,

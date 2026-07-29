@@ -1,7 +1,7 @@
 // Fake surnames of the form Doe_a1b2c3d4 — see first_name.
 
 import sql from "./last_name.sql" with { type: "text" };
-import { TEXT_TYPES, type Strategy } from "./types";
+import { TEXT_TYPES, type Strategy } from "./types.ts";
 
 export const last_name: Strategy = {
   types: TEXT_TYPES,

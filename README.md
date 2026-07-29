@@ -4,6 +4,14 @@ Mask sensitive data in any Postgres database.
 
 Point anon-kit at a copy of production, set a masking strategy per column, and apply. Real names, emails, and identifiers come out masked and verified by leak checks — a database you can hand to development, testing, or analytics.
 
+## Quick start with an agent
+
+Paste this into your coding agent:
+
+> Install the anon-kit skill with `npx skills add lirbank/anon-kit --skill anon-kit`, then follow it to mask a copy of my Postgres database.
+
+The skill walks your agent through installing the anon-kit source into your repository, generating the map, and masking a copy of your database.
+
 ## Safety model
 
 - **Every column gets a decision.** Columns default to `keep`, and leaving a column on `keep` is an explicit claim that it is not sensitive. A column that appears in the live schema but not in the map fails `apply` — new columns can never slip through unmasked.
@@ -74,14 +82,6 @@ Validates the map against the live schema, compiles it to `.anon-kit/mask.sql` a
 
 - `--compile-only` — write the generated SQL and stop, to review exactly what would run.
 - `--yes` — skip the confirmation prompt, for CI where the URL is machine-placed.
-
-### --version
-
-```
-npx anon-kit --version
-```
-
-Prints the version. `-v` is the short form.
 
 ## Masking strategies
 

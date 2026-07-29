@@ -13,17 +13,17 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createInterface } from "node:readline/promises";
 import postgres from "postgres";
-import { homepage } from "../package.json";
+
 import {
   compileMask,
   compileProbes,
   compileVerify,
   rewrittenFollowers,
   validate,
-} from "./core";
-import { installSql } from "./install";
-import { introspect, qualify, quoteIdent } from "./lib";
-import type { Mapping } from "./strategies";
+} from "./core.ts";
+import { installSql } from "./install.ts";
+import { introspect, qualify, quoteIdent } from "./lib.ts";
+import type { Mapping } from "./strategies/index.ts";
 
 const MAP_FILE = "anon-kit.json";
 const GENERATED_DIR = ".anon-kit";
@@ -34,7 +34,7 @@ const skipConfirm = process.argv.includes("--yes");
 const url = process.env.ANON_KIT_DATABASE_URL;
 if (!url) {
   console.error(
-    `ANON_KIT_DATABASE_URL is not set — set it in the environment or in a .env file in the working directory\nSee ${homepage}`,
+    `ANON_KIT_DATABASE_URL is not set — set it in the environment or in a .env file in the working directory`,
   );
   process.exit(1);
 }

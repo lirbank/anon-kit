@@ -1,0 +1,187 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "anon-kit",
+  "homepage": "https://github.com/lirbank/anon-kit",
+  "items": [
+    {
+      "name": "anon-kit",
+      "type": "registry:item",
+      "title": "anon-kit",
+      "description": "Mask sensitive data in any Postgres database.",
+      "docs": "Docs: https://github.com/lirbank/anon-kit",
+      "devDependencies": ["postgres"],
+      "files": [
+        {
+          "path": "src/apply.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/apply.ts"
+        },
+        {
+          "path": "src/cli.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/cli.ts"
+        },
+        {
+          "path": "src/core.test.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/core.test.ts"
+        },
+        {
+          "path": "src/core.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/core.ts"
+        },
+        {
+          "path": "src/init.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/init.ts"
+        },
+        {
+          "path": "src/install.test.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/install.test.ts"
+        },
+        {
+          "path": "src/install.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/install.ts"
+        },
+        {
+          "path": "src/lib.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/lib.ts"
+        },
+        {
+          "path": "src/schema.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/schema.ts"
+        },
+        {
+          "path": "src/sql.d.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/sql.d.ts"
+        },
+        {
+          "path": "src/strategies/date_shift.sql",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/date_shift.sql"
+        },
+        {
+          "path": "src/strategies/date_shift.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/date_shift.ts"
+        },
+        {
+          "path": "src/strategies/email.sql",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/email.sql"
+        },
+        {
+          "path": "src/strategies/email.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/email.ts"
+        },
+        {
+          "path": "src/strategies/first_name.sql",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/first_name.sql"
+        },
+        {
+          "path": "src/strategies/first_name.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/first_name.ts"
+        },
+        {
+          "path": "src/strategies/follow_fk.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/follow_fk.ts"
+        },
+        {
+          "path": "src/strategies/hash_id.sql",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/hash_id.sql"
+        },
+        {
+          "path": "src/strategies/hash_id.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/hash_id.ts"
+        },
+        {
+          "path": "src/strategies/index.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/index.ts"
+        },
+        {
+          "path": "src/strategies/keep.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/keep.ts"
+        },
+        {
+          "path": "src/strategies/last_name.sql",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/last_name.sql"
+        },
+        {
+          "path": "src/strategies/last_name.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/last_name.ts"
+        },
+        {
+          "path": "src/strategies/phone.sql",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/phone.sql"
+        },
+        {
+          "path": "src/strategies/phone.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/phone.ts"
+        },
+        {
+          "path": "src/strategies/redact.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/redact.ts"
+        },
+        {
+          "path": "src/strategies/registry.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/registry.ts"
+        },
+        {
+          "path": "src/strategies/scrub_text.sql",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/scrub_text.sql"
+        },
+        {
+          "path": "src/strategies/scrub_text.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/scrub_text.ts"
+        },
+        {
+          "path": "src/strategies/shared.sql",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/shared.sql"
+        },
+        {
+          "path": "src/strategies/types.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/types.ts"
+        },
+        {
+          "path": "src/strategies/zip3.sql",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/zip3.sql"
+        },
+        {
+          "path": "src/strategies/zip3.ts",
+          "type": "registry:file",
+          "target": "tools/anon-kit/strategies/zip3.ts"
+        },
+        {
+          "path": "anon-kit.schema.json",
+          "type": "registry:file",
+          "target": "tools/anon-kit/anon-kit.schema.json"
+        }
+      ]
+    }
+  ]
+}

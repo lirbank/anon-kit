@@ -4,7 +4,7 @@
 // descriptor and ship it inside the package — nothing is read from disk.
 
 import shared from "./strategies/shared.sql" with { type: "text" };
-import { STRATEGIES } from "./strategies";
+import { STRATEGIES } from "./strategies/index.ts";
 
 export function installSql(): string {
   const parts = [shared];

@@ -2,8 +2,8 @@
 // strategy's functions verbatim, in registry order.
 
 import { describe, expect, test } from "bun:test";
-import { installSql } from "./install";
-import { STRATEGIES } from "./strategies";
+import { installSql } from "./install.ts";
+import { STRATEGIES } from "./strategies/index.ts";
 
 describe("installSql", () => {
   test("installs shared infrastructure before any strategy function", () => {
