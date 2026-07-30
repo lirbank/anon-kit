@@ -1,7 +1,6 @@
 ---
 name: anon-kit
-description: >-
-  Builds a bespoke, project-owned Postgres masking solution and establishes a masked-baseline workflow for development, testing, previews, and analytics. Use when a user needs masked production-like data, mentions database masking, anonymization, de-identification, or PII, or wants to create, adapt, or review an Anon-kit solution for Databricks Lakebase, Neon Postgres, or another Postgres database.
+description: "Builds a bespoke, project-owned Postgres masking solution and establishes a masked-baseline workflow for development, testing, previews, and analytics. Use when a user needs masked production-like data, mentions database masking, anonymization, de-identification, or PII, or wants to create, adapt, or review an Anon-kit solution for Databricks Lakebase, Neon Postgres, or another Postgres database."
 ---
 
 # Anon-kit
@@ -18,15 +17,15 @@ Start by reading the current README at https://github.com/lirbank/anon-kit. It e
 
 Help the user build a bespoke, project-owned masking solution that fits their repository, database, and requirements.
 
-Understand the user's system and how they currently make production copies. Explain the proposed workflow in terms of their platform and align on the direction before building.
+Understand the user's system and how they make copies of the database they want to mask. Explain the proposed workflow in terms of their platform and align on the direction before building.
 
 The user creates and removes databases and database branches. Explain what they need to do and wait for them to do it.
 
 ## Keep the database boundary
 
-`ANON_KIT_DATABASE_URL` is the dedicated connection for this work and must point to the copy created for masking. All introspection, compilation, masking, and verification must use only this connection.
+`ANON_KIT_DATABASE_URL` is the only database connection for this work. All introspection, compilation, masking, and verification must use it. Never use, copy, infer, or fall back to `DATABASE_URL` or any other application database connection.
 
-Never use, copy, infer, or fall back to `DATABASE_URL` or any other application database connection. If `ANON_KIT_DATABASE_URL` is unset, instruct the user to create the dedicated production copy, set the variable, and wait for them to do it.
+Masking runs only on a copy of the database the user wants to mask, created specifically for this masking run. Never select or recommend an existing database as the target. Instruct the user to create the copy, set `ANON_KIT_DATABASE_URL`, and confirm that it may be overwritten, then wait for them to do it.
 
 ## Build and iterate
 
