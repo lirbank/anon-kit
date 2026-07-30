@@ -5,30 +5,75 @@ description: "Guides an agent to build and iterate on a bespoke, project-owned s
 
 # Anon-kit
 
-Start by reading the current README at https://github.com/lirbank/anon-kit. It explains the proposed workflow and documented behavior.
+Start by reading the current README at https://github.com/lirbank/anon-kit. It defines the workflow, commands, strategies, and limitations. The reference implementation is starting material for project-owned code, not the finished deliverable.
 
-## Gather the right context
+## Step 1: align on the workflow
 
-- For a new solution, inspect the user's repository and database information, then inspect the relevant parts of the Anon-kit repository before choosing how to seed the project-owned implementation.
-- For an existing bespoke solution, inspect the local implementation first. Consult the relevant parts of the Anon-kit repository to understand inherited behavior or find useful patterns, but treat the local code as authoritative.
-- For a workflow-only question, the README may be sufficient.
+Briefly explain the masked-baseline workflow from the README in terms of the user's system and confirm the direction before building. Learn which database they want to mask, how they make copies of it, and what development, testing, preview, or analytics environments will consume the baseline.
 
-## Work with the user
+The user creates and removes databases and database branches. You explain what they need to do, provide exact instructions, and wait for them to do it.
 
-Help the user build a bespoke, project-owned masking solution that fits their repository, database, and requirements.
+## Step 2: create the base implementation
 
-Understand the user's system and how they make copies of the database they want to mask. Explain the proposed workflow in terms of their platform and align on the direction before building.
+If a bespoke implementation already exists, inspect and continue adapting it. Do not reinstall the reference implementation over project-owned code.
 
-The user creates and removes databases and database branches. Explain what they need to do and wait for them to do it.
+For a TypeScript or JavaScript repository, vendor the reference source:
 
-## Keep the database boundary
+```sh
+npx shadcn@latest add lirbank/anon-kit/anon-kit
+```
 
-`ANON_KIT_DATABASE_URL` is the only database connection for this work. All introspection, compilation, masking, and verification must use it. Never use, copy, infer, or fall back to `DATABASE_URL` or any other application database connection.
+Add a package script so the command is discoverable:
 
-Masking runs only on a copy of the database the user wants to mask, created specifically for this masking run. Never select or recommend an existing database as the target. Instruct the user to create the copy, set `ANON_KIT_DATABASE_URL`, and confirm that it may be overwritten, then wait for them to do it.
+```json
+"anon-kit": "npx bun tools/anon-kit/cli.ts"
+```
 
-## Build and iterate
+For any other stack, inspect the reference implementation and port it into the repository's language and tooling. Preserve the `anon-kit.json` map, verification, and fail-closed schema validation. The remaining steps use the TypeScript commands; use the port's equivalents.
 
-Use what you learn from the user and the Anon-kit repository to build a useful base solution. Reuse, adapt, translate, or replace the reference implementation according to the user's stack and needs.
+## Step 3: prepare the masking copy
 
-Treat the base solution as the first iteration. Propose decisions, explain assumptions and uncertainty, and use the user's domain knowledge and the results of running the solution to improve it. Continue until the user agrees that it works for their intended use.
+Determine the database platform, recommend the applicable copy method described in the README, and give the user exact commands or console steps. Offer further guidance, but never create or remove the copy yourself.
+
+Masking runs only on a copy of the database the user wants to mask, created specifically for this masking run. The user sets that copy's connection string as `ANON_KIT_DATABASE_URL` and confirms that it may be overwritten. Wait for both.
+
+`ANON_KIT_DATABASE_URL` is the only database connection for this work. All introspection, compilation, masking, and verification must use it. Never use, copy, infer, or fall back to `DATABASE_URL` or any other application database connection. Do not proceed based only on a pre-existing value.
+
+## Step 4: generate the map
+
+```sh
+npx bun tools/anon-kit/cli.ts init
+```
+
+## Step 5: draft the map and stop for review
+
+Draft a masking decision for every column. Use the target repository, schema, README, and reference implementation as evidence. Present a concise summary to the user and flag every judgment call, especially uncertain columns, free text, and anything left on `keep` that could contain sensitive data. Do not apply until the user approves the decisions.
+
+## Step 6: apply, verify, and iterate
+
+Offer a compile-only review first:
+
+```sh
+npx bun tools/anon-kit/cli.ts apply --compile-only
+```
+
+After the user approves the masking decisions and confirms the target, apply and verify:
+
+```sh
+npx bun tools/anon-kit/cli.ts apply
+```
+
+Review the verification output and resulting application behavior with the user. Fix the map, change strategies, or extend the bespoke implementation wherever the result is incomplete or unsuitable. When another clean run is needed, instruct the user to create a fresh copy and update `ANON_KIT_DATABASE_URL`.
+
+Repeat until verification passes and the user agrees that the masking coverage and retained data utility fit the intended use.
+
+## Step 7: hand off
+
+Document the bespoke solution's commands, masking decisions, limitations, and procedure for creating or refreshing the masked baseline. The user keeps the accepted baseline unchanged and creates downstream copies from it. Later schema changes, strategy changes, and refreshes re-enter the review and iteration loop.
+
+## Invariants
+
+- Every live column has an explicit masking decision, including `keep`. Any mismatch between the map and live schema fails closed.
+- Treat the copy as sensitive until masking and verification succeed and the user accepts the result.
+- Never weaken or remove verification merely to make a run pass. Explain verification changes to the user.
+- Do not claim that the masked database is anonymous, safe, or compliant with any standard.
