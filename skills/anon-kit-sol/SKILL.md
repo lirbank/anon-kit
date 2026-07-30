@@ -10,8 +10,8 @@ Start by reading the current README at https://github.com/lirbank/anon-kit. It e
 
 ## Gather the right context
 
-- For a new solution, inspect the user's repository and database information, then study the relevant Anon-kit source code and tests before deciding what to build.
-- For an existing bespoke solution, inspect the local implementation first. Consult the relevant Anon-kit source code and tests to understand inherited behavior or find useful patterns, but treat the local code as authoritative.
+- For a new solution, inspect the user's repository and database information, then inspect the relevant parts of the Anon-kit repository before choosing how to seed the project-owned implementation.
+- For an existing bespoke solution, inspect the local implementation first. Consult the relevant parts of the Anon-kit repository to understand inherited behavior or find useful patterns, but treat the local code as authoritative.
 - For a workflow-only question, the README may be sufficient.
 
 ## Work with the user
