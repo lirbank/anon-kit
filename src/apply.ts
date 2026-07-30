@@ -61,7 +61,7 @@ const errors = validate(mapping, columns, fks);
 // base tables leaves it intact, and no leak check would ever see it.
 for (const v of matviews)
   errors.push(
-    `materialized view ${v.schema}.${v.name} holds pre-mask data anon-kit cannot mask — drop it on this copy and recreate it after masking, so it rebuilds from masked tables`,
+    `materialized view ${v.schema}.${v.name} holds pre-mask data Anon-kit cannot mask — drop it on this copy and recreate it after masking, so it rebuilds from masked tables`,
   );
 if (errors.length > 0) {
   for (const e of errors) console.error(`error: ${e}`);

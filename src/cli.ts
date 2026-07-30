@@ -29,7 +29,7 @@ const command = cmd ? COMMANDS[cmd] : undefined;
 
 if (!command) {
   if (cmd) console.error(`Unknown command: ${cmd}\n`);
-  console.log(`anon-kit\n\nUsage: anon-kit <command> [flags]\n\nCommands:`);
+  console.log(`Anon-kit\n\nUsage: anon-kit <command> [flags]\n\nCommands:`);
   for (const [name, c] of Object.entries(COMMANDS))
     console.log(`  ${name.padEnd(7)}${c.blurb}`);
   process.exit(cmd ? 1 : 0);

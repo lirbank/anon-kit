@@ -6,7 +6,7 @@
     {
       "name": "anon-kit",
       "type": "registry:item",
-      "title": "anon-kit",
+      "title": "Anon-kit",
       "description": "Mask sensitive data in any Postgres database.",
       "docs": "Docs: https://github.com/lirbank/anon-kit",
       "devDependencies": ["postgres"],

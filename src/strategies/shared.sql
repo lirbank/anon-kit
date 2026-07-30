@@ -1,7 +1,8 @@
 -- Shared infrastructure for the masking function pack. Pure SQL over
--- pgcrypto — installable anywhere the anon extension isn't (Lakebase, or
--- Neon without unstable extensions). All functions are deterministic given
--- the salt, so cross-table joins stay consistent within a run. The runner
+-- pgcrypto — installable anywhere the anon extension isn't (Databricks
+-- Lakebase, or Neon Postgres without unstable extensions). All functions are
+-- deterministic given the salt, so cross-table joins stay consistent within
+-- a run. The runner
 -- generates a fresh salt per run (set as app.anon_salt on the session) and
 -- discards it; salt() raises if it's missing.
 --

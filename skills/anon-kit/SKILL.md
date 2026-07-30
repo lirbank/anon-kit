@@ -1,11 +1,11 @@
 ---
 name: anon-kit
-description: "Mask sensitive data in a copy of a Postgres database so it can be handed to development, testing, or analytics. Use when a user wants to mask, anonymize, or de-identify a database, remove PII from a database copy, create safe dev/test data from production, or set up data masking on a Neon or Databricks Lakebase database branch. Also use for adjusting an existing anon-kit setup: editing the anon-kit.json map, adding or changing masking strategies, or reviewing leak checks."
+description: "Mask sensitive data in a copy of a Postgres database so it can be handed to development, testing, or analytics. Use when a user wants to mask, anonymize, or de-identify a database, remove PII from a database copy, create safe dev/test data from production, or set up data masking on a Neon Postgres or Databricks Lakebase database branch. Also use for adjusting an existing Anon-kit setup: editing the anon-kit.json map, adding or changing masking strategies, or reviewing leak checks."
 ---
 
-# anon-kit
+# Anon-kit
 
-anon-kit masks a copy of a Postgres database in place: one masking strategy per column, compiled to SQL, verified by leak checks. It is a recipe — the source is a starting point that becomes part of this repository, yours to adapt.
+Anon-kit masks a copy of a Postgres database in place: one masking strategy per column, compiled to SQL, verified by leak checks. It is a recipe — the source is a starting point that becomes part of this repository, yours to adapt.
 
 ## Step 1: pick the install path
 

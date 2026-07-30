@@ -6,6 +6,8 @@
 
 ## Terminology
 
+- Write "Anon-kit" for the product name in prose, headings, and UI. Use "anon-kit" for technical identifiers such as the package, CLI command, skill name, paths, URLs, and files
+- Write the product names as "Databricks Lakebase" and "Neon Postgres"
 - A branch is a database branch, never a git branch. Write "database branch" wherever git could be read into it
 - Mask is the only verb for overwriting sensitive values. Never anonymize, obfuscate, or scrub as verbs (scrub_text and redact are strategy names only)
 - apply masks the database at ANON_KIT_DATABASE_URL in place — a copy of production the user creates
