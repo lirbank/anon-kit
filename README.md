@@ -1,44 +1,75 @@
-# anon-kit
+# Anon-kit
 
-Mask sensitive data in any Postgres database.
+Mask sensitive data in any Postgres database for development, testing, or analytics. Point Anon-kit at a disposable copy created with a full clone, backup restore, or database branch.
 
-anon-kit is a recipe: the source becomes part of your repository, for your agent to adapt.
+## Workflow
 
-Point anon-kit at a copy of production, set a masking strategy per column, and apply. Real names, emails, and identifiers come out masked and verified by leak checks — a database you can hand to development, testing, or analytics.
+Anon-kit masks the Postgres database it connects to in place. It does not create database copies.
+
+1. Create a disposable copy of production.
+2. Mask and verify the production copy, then keep it unchanged as the baseline.
+3. Create copies from the masked baseline for development, testing, and analytics.
+
+```text
+production (restricted)
+└── verified masked baseline (restricted and kept unchanged)
+    ├── developer copy
+    ├── test copy
+    └── preview copy
+```
+
+Masking rewrites the selected fields, so retaining a verified masked baseline avoids repeating that work for every environment.
+
+Refresh the baseline by repeating the workflow with a new copy of current production.
+
+### Databricks Lakebase and Neon Postgres
+
+Database branching makes both copy steps instant. Masking is the only step whose time grows with database size, so create a database branch of production and mask it once. Then create isolated developer, test, and preview database branches from the masked baseline.
+
+### Regular Postgres
+
+Anon-kit works with regular Postgres too. Clone production or restore a backup, mask that copy once, then use it as the source for developer, test, and preview copies. Unlike database branches, each copy takes time and requires storage proportional to the database size, but you still avoid repeating the masking work.
 
 ## Quick start with an agent
 
 Paste this into your coding agent:
 
-> Install the anon-kit skill with \`npx skills add lirbank/anon-kit --skill anon-kit\`, then follow it to mask a copy of my Postgres database.
+> Install the Anon-kit skill with \`npx skills add lirbank/anon-kit --skill anon-kit\`, then follow it to create a masked baseline for development from a copy of my Postgres database.
 
-The skill guides your agent to build a bespoke masking solution for your project.
+The skill is the primary way to use Anon-kit. It guides the agent to study the reference implementation, then install, adapt, translate, or replace it with a masking solution that fits the repository and database. The resulting source becomes project-owned code.
 
-## Safety model
+The agent drafts the masking decisions and stops for review before changing data. After implementation it should document the bespoke solution's commands, strategies, limitations, and procedure for creating or refreshing copies.
 
-> **anon-kit rewrites data in place.** Point `ANON_KIT_DATABASE_URL` at a copy of production, never at production itself — masking production destroys the real data.
+## Safety contract
 
-- **Every column gets a decision.** Columns default to `keep`, and leaving a column on `keep` is an explicit claim that it is not sensitive. A column that appears in the live schema but not in the map fails `apply` — new columns can never slip through unmasked.
-- **Leak checks prove the mask ran.** `apply` derives a verification query from the map; every strategy whose output is recognizable contributes a check that must return zero rows. Any leak exits non-zero.
-- **Masked values stay consistent.** Hash-based strategies key off a single salt, so within one run the same input masks to the same output — duplicates stay duplicates, joins keep resolving. The salt is generated per run and discarded, so nothing links an entity across runs.
+A bespoke implementation can replace the CLI, map, strategies, or language, but it must preserve these outcomes:
 
-## Getting a copy to mask
-
-`apply` masks whatever `ANON_KIT_DATABASE_URL` points at, so the first step is a disposable copy of production:
-
-- **[Neon](https://neon.com/)** — create a database branch of production in the console or with `neon branches create`, and use the branch's connection string.
-- **[Databricks Lakebase](https://www.databricks.com/product/lakebase)** — create a database branch in the console or with the Databricks CLI, and use the branch's connection string with an OAuth token (`databricks auth token`) as the password.
-- **Any Postgres** — restore a dump into a scratch database (`pg_dump` production, `pg_restore` into the copy).
-
-On Neon and Lakebase the copy is instant at any database size: a database branch is born with production's schema and data, and a fresh one is a single command away. The payoff compounds after masking: development, testing, and analytics branch instantly off the one masked branch instead of each masking their own copy — masking a large database takes time, branching takes none. To refresh a masked copy, recreate the branch and run `apply` again.
+- Never mask production in place. The disposable target still contains production data until masking and verification succeed, so keep it restricted.
+- Every column gets an explicit masking decision. New columns and incompatible schema changes fail closed instead of silently shipping real values.
+- Verification is part of the masking design. Recognizable outputs have checks that catch strategy failure, and a check is never weakened merely to make a run pass.
+- A human reviews uncertain columns, free text, and every decision to keep real values before masking begins.
+- A failed or partially verified copy remains sensitive and must not be used for development.
+- Shape-preserving strategies retain identifying structure. A masked database is not necessarily fully anonymized.
 
 ## npm package
 
-The npm package provides anon-kit as a standalone CLI instead of adding the recipe to your repository.
+The npm package is a standalone CLI. Its documentation and source in this repository form the reference implementation agents study when building a bespoke solution. The commands, strategies, and limitations below describe the package exactly. An agent-built solution may differ.
+
+### Safety model
+
+> **Anon-kit rewrites data in place.** Point `ANON_KIT_DATABASE_URL` at a copy of production, never at production itself — masking production destroys the real data.
+
+- **Every column gets a decision.** Columns default to `keep`, and leaving a column on `keep` is an explicit claim that it is not sensitive. A column that appears in the live schema but not in the map fails `apply` — new columns can never slip through unmasked.
+- **Leak checks prove the mask ran.** `apply` derives a verification query from the map. Every strategy whose output is recognizable contributes a check that must return zero rows. Any leak exits non-zero.
+- **Masked values stay consistent.** Hash-based strategies key off a single salt, so within one run the same input masks to the same output — duplicates stay duplicates, joins keep resolving. The salt is generated per run and discarded, so nothing links an entity across runs.
 
 ### Usage
 
-1. Get a connection string to the database to mask — a copy of production (see [Getting a copy to mask](#getting-a-copy-to-mask)).
+1. Create a disposable copy of production and get its connection string:
+
+   - **[Databricks Lakebase](https://www.databricks.com/product/lakebase)** — create a database branch in the console or with the Databricks CLI, then use an OAuth token (`databricks auth token`) as the password.
+   - **[Neon Postgres](https://neon.com/)** — create a database branch in the console or with `neon branches create`.
+   - **Any Postgres** — restore a dump into a scratch database with `pg_dump` and `pg_restore`.
 
 2. Set `ANON_KIT_DATABASE_URL`, in the environment or in a `.env` file in the working directory:
 
@@ -56,7 +87,7 @@ The npm package provides anon-kit as a standalone CLI instead of adding the reci
 
 4. Edit `anon-kit.json`: set a masking strategy on each sensitive column (see [Masking strategies](#masking-strategies)). A column left on `keep` ships its real values.
 
-5. Mask the database:
+5. Mask and verify the database:
 
    ```sh
    npx anon-kit apply
@@ -64,7 +95,7 @@ The npm package provides anon-kit as a standalone CLI instead of adding the reci
 
    `apply` compiles the map to SQL, asks you to confirm the target host, masks the database in place, and runs leak checks that must come back clean.
 
-The copy now holds masked data — hand it to development, testing, or analytics.
+After the checks pass, use the masked copy directly or retain it as the approved baseline for development, testing, or analytics copies.
 
 ### Commands
 
@@ -76,7 +107,7 @@ Both commands connect to the database at `ANON_KIT_DATABASE_URL`, read from the 
 npx anon-kit init
 ```
 
-Introspects `ANON_KIT_DATABASE_URL` and writes `anon-kit.json`. Every column starts as `keep`; foreign keys are prefilled with `follow_fk`. The file's `$schema` reference gives editor autocomplete and typo-flagging while you edit. Refuses to overwrite an existing map.
+Introspects `ANON_KIT_DATABASE_URL` and writes `anon-kit.json`. Every column starts as `keep`, and foreign keys are prefilled with `follow_fk`. The file's `$schema` reference gives editor autocomplete and typo-flagging while you edit. Refuses to overwrite an existing map.
 
 #### apply
 
@@ -89,19 +120,7 @@ Validates the map against the live schema, compiles it to `.anon-kit/mask.sql` a
 - `--compile-only` — write the generated SQL and stop, to review exactly what would run.
 - `--yes` — skip the confirmation prompt, for CI where the URL is machine-placed.
 
-### Cutting a release
-
-Set `version` in [package.json](package.json) to the new version and push. The [release workflow](.github/workflows/release.yml) publishes it to npm and creates the matching GitHub release.
-
-- Stable versions (`1.2.0`) publish as `latest`. They release from main only and must be newer than the current `latest`.
-- Prereleases (`1.2.0-beta.1`) publish under the `beta` dist-tag (`npm i anon-kit@beta`). They release from any branch, so a beta line never blocks stable releases from main.
-- To graduate a beta, set any stable version (`1.2.0`, `1.3.0`) and push to main.
-
-The workflow releases only when package.json holds a version that is not yet on npm, so ordinary pushes publish nothing. A run that fails before publishing releases nothing either — fix and push, and the release completes on the next run.
-
-Verify with `npx anon-kit@latest` from an empty directory.
-
-## Masking strategies
+### Masking strategies
 
 One masking strategy per column, in the map (`anon-kit.json`). `init` writes it, you edit it, `apply` compiles it to SQL.
 
@@ -129,9 +148,9 @@ One masking strategy per column, in the map (`anon-kit.json`). `init` writes it,
 }
 ```
 
-A column entry is the strategy, whatever fields that strategy needs, and two machine-written schema facts (`_pgType`, `_nullable`) that `init` caches from the live schema. The underscore fields are not settings — `apply` errors when they go stale — but they let the editor flag an incompatible strategy (say, `email` on a date column) as you edit. `"strategy": null` means not decided yet; `apply` refuses to run while any column is null, unknown, or incompatible with its column type.
+A column entry is the strategy, whatever fields that strategy needs, and two machine-written schema facts (`_pgType`, `_nullable`) that `init` caches from the live schema. The underscore fields are not settings — `apply` errors when they go stale — but they let the editor flag an incompatible strategy (say, `email` on a date column) as you edit. `"strategy": null` means not decided yet. `apply` refuses to run while any column is null, unknown, or incompatible with its column type.
 
-### keep
+#### keep
 
 Ships the real value untouched.
 
@@ -143,7 +162,7 @@ Ships the real value untouched.
 - Drift protection is what makes keep-by-default safe: a new live column missing from the map fails `apply`, so every column gets a decision.
 - Leak check: none possible — keep is trust.
 
-### hash_id
+#### hash_id
 
 Replaces an identifier with a salted SHA-256 hex string (64 chars). Every column that declares `follow_fk` against it is rewritten from an old→new map in the same transaction, with constraints deferred, so joins keep resolving.
 
@@ -156,7 +175,7 @@ Replaces an identifier with a salted SHA-256 hex string (64 chars). Every column
 - Use it when the id itself is sensitive (MRNs, SSN-derived ids, external ids). A meaningless serial int can stay `keep`.
 - Leak check: every value matches `^[0-9a-f]{64}$`.
 
-### follow_fk
+#### follow_fk
 
 For columns that reference an id: the column takes whatever the referenced column got.
 
@@ -164,12 +183,12 @@ For columns that reference an id: the column takes whatever the referenced colum
 { "strategy": "follow_fk", "references": "public.patients.patient_id" }
 ```
 
-- `references` (required) — `schema.table.column` of the id column this one points at. `init` prefills it for constraint-backed FKs; add it by hand for soft FKs (no constraint in the schema), which introspection can't see.
+- `references` (required) — `schema.table.column` of the id column this one points at. `init` prefills it for constraint-backed FKs. Add it by hand for soft FKs (no constraint in the schema), which introspection can't see.
 - The referenced column must be `hash_id` or `keep`. The rewrite is driven by these entries, so a soft FK masks exactly like a declared one.
 - Declared constraints can't be missed: `apply` fails if an FK constraint points at a `hash_id` column and the child column isn't `follow_fk` against it.
 - Leak check: inherits the `hash_id` pattern when the referenced column is `hash_id`.
 
-### first_name / last_name
+#### first_name / last_name
 
 Fake names of the form `Pat_a1b2c3d4` / `Doe_a1b2c3d4`, derived by hashing the original.
 
@@ -178,21 +197,21 @@ Fake names of the form `Pat_a1b2c3d4` / `Doe_a1b2c3d4`, derived by hashing the o
 ```
 
 - Deliberately obviously fake — masked data can never be mistaken for real.
-- Same original name → same fake within a run, so name frequency survives. A rare surname's rarity is still a signal; use `redact` where that matters.
+- Same original name → same fake within a run, so name frequency survives. A rare surname's rarity is still a signal. Use `redact` where that matters.
 - Leak check: every value matches `^Pat_[0-9a-f]{8}$` / `^Doe_[0-9a-f]{8}$`.
 
-### email
+#### email
 
-Fake address at `example.invalid`; the local part is 16 hex chars hashed from the original.
+Fake address at `example.invalid`. The local part is 16 hex chars hashed from the original.
 
 ```json
 { "strategy": "email" }
 ```
 
-- Shape-valid so app-level validation keeps passing; `.invalid` is a reserved TLD, so nothing can ever route there.
+- Shape-valid so app-level validation keeps passing. `.invalid` is a reserved TLD, so nothing can ever route there.
 - Leak check: every value ends in `@example.invalid`.
 
-### phone
+#### phone
 
 Fake number of the form `555-NNN-NNNN`, digits hashed from the original.
 
@@ -200,10 +219,10 @@ Fake number of the form `555-NNN-NNNN`, digits hashed from the original.
 { "strategy": "phone" }
 ```
 
-- North-American shape only; real formats vary per row (extensions, country codes) and are not preserved.
+- North-American shape only. Real formats vary per row (extensions, country codes) and are not preserved.
 - Leak check: every value matches `^555-\d{3}-\d{4}$`.
 
-### redact
+#### redact
 
 Replaces every value with one sentinel, or NULL. The only strategy that leaves no per-row signal at all.
 
@@ -211,12 +230,12 @@ Replaces every value with one sentinel, or NULL. The only strategy that leaves n
 { "strategy": "redact", "sentinel": "XXX-XX-XXXX" }
 ```
 
-- `sentinel` (required) — the replacement string, or `null` to null the column. `null` needs a nullable column; a sentinel keeps the schema identical to production, which is why it's the default recommendation on NOT NULL columns.
+- `sentinel` (required) — the replacement string, or `null` to null the column. `null` needs a nullable column. A sentinel keeps the schema identical to production, which is why it's the default recommendation on NOT NULL columns.
 - `apply` probes each sentinel against its live column up front, so one that can't be cast to the column type (say `"abc"` on an integer column) fails before anything is written.
 - The right default for anything devs don't actually need realistic values for. Reach for shape-preserving strategies only when something depends on the shape.
 - Leak check: every value equals the sentinel (or IS NULL).
 
-### date_shift
+#### date_shift
 
 Shifts all of an entity's dates by the same hashed offset (±1–364 days, never zero), so intervals between an entity's events hold.
 
@@ -228,7 +247,7 @@ Shifts all of an entity's dates by the same hashed offset (±1–364 days, never
 - Preserves durations (admit → discharge) and rough seasonality. Does not hide the year reliably, and an attacker who knows one real date for an entity recovers the shift and with it every other date.
 - Leak check: none — shifted dates are indistinguishable from real ones by pattern.
 
-### zip3
+#### zip3
 
 Keeps the first three zip digits, zeros the rest: `94301` → `94300`.
 
@@ -240,7 +259,7 @@ Keeps the first three zip digits, zeros the rest: `94301` → `94300`.
 - Nine-digit zips are truncated to the 5-char form.
 - Leak check: every value ends in `00`.
 
-### scrub_text
+#### scrub_text
 
 Regex pass over free text replacing SSN, email, and phone patterns with `[SSN]`, `[EMAIL]`, `[PHONE]`.
 
@@ -248,14 +267,14 @@ Regex pass over free text replacing SSN, email, and phone patterns with `[SSN]`,
 { "strategy": "scrub_text" }
 ```
 
-- The weakest strategy: names and any other sensitive prose survive ("Patient Alice Garcia presented..." stays intact). Use it only when devs genuinely need the text; otherwise `redact`.
+- The weakest strategy: names and any other sensitive prose survive ("Patient Alice Garcia presented..." stays intact). Use it only when devs genuinely need the text. Otherwise, use `redact`.
 - Leak check: the same three patterns return zero matches — it verifies the scrub ran, not that the text is clean.
 
-## Limitations
+### Limitations
 
 - **Materialized views** hold their own copy of the data, so masking the base tables leaves them intact. `apply` refuses to run while any exist — drop them on the copy and recreate them after masking, so they rebuild from masked tables.
 - **Partitioned tables** are untested. Introspection lists the parent and each partition separately, so a masked partitioned table may be rewritten twice — for `hash_id` that breaks join consistency. Review `--compile-only` output before relying on it.
-- **Column length is not validated.** `hash_id` writes 64 characters and `email` 32; on a shorter `varchar(n)` the mask fails mid-run. The transaction rolls back — nothing is left half-masked — but the error surfaces at runtime, not at validation.
+- **Column length is not validated.** `hash_id` writes 64 characters and `email` 32. On a shorter `varchar(n)` the mask fails mid-run. The transaction rolls back — nothing is left half-masked — but the error surfaces at runtime, not at validation.
 - **Triggers fire during masking.** A trigger that copies old row values (audit logging) reintroduces real data mid-run, and rows it inserts are not masked. Disable user triggers on the copy (`ALTER TABLE … DISABLE TRIGGER USER`) before `apply` if any trigger records row values.
 - **Names containing a dot** can't be represented: the map keys are `schema.table`, so a table or column named with a literal `.` breaks the format.
 
@@ -290,3 +309,15 @@ The anon extension's [masking functions](https://postgresql-anonymizer.readthedo
 ### Removing masking strategies
 
 Delete the files, rerun `bun run schema`, and take it out of the tests and any map that uses it.
+
+### Cutting a release
+
+Set `version` in [package.json](package.json) to the new version and push. The [release workflow](.github/workflows/release.yml) publishes it to npm and creates the matching GitHub release.
+
+- Stable versions (`1.2.0`) publish as `latest`. They release from main only and must be newer than the current `latest`.
+- Prereleases (`1.2.0-beta.1`) publish under the `beta` dist-tag (`npm i anon-kit@beta`). They release from any branch, so a beta line never blocks stable releases from main.
+- To graduate a beta, set any stable version (`1.2.0`, `1.3.0`) and push to main.
+
+The workflow releases only when package.json holds a version that is not yet on npm, so ordinary pushes publish nothing. A run that fails before publishing releases nothing either — fix and push, and the release completes on the next run.
+
+Verify with `npx anon-kit@latest` from an empty directory.
