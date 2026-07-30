@@ -34,7 +34,7 @@ Anon-kit works with regular Postgres too. Clone production or restore a backup, 
 
 Paste this into your coding agent:
 
-> Install the Anon-kit skill with \`npx skills add lirbank/anon-kit --skill anon-kit\`, then follow it to create a masked baseline for development from a copy of my Postgres database.
+> Install the Anon-kit skill with \`npx skills add lirbank/anon-kit --skill anon-kit\`, then use it to work with me to build a bespoke masking solution and masked-baseline workflow for my Postgres database.
 
 The skill is the primary way to use Anon-kit. It guides the agent to study the reference implementation, then install, adapt, translate, or replace it with a masking solution that fits the repository and database. The resulting source becomes project-owned code.
 
