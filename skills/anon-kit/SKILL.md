@@ -1,65 +1,35 @@
 ---
 name: anon-kit
-description: "Mask sensitive data in a copy of a Postgres database so it can be handed to development, testing, or analytics. Use when a user wants to mask, anonymize, or de-identify a database, remove PII from a database copy, create safe dev/test data from production, or set up data masking on a Neon Postgres or Databricks Lakebase database branch. Also use for adjusting an existing Anon-kit setup: editing the anon-kit.json map, adding or changing masking strategies, or reviewing leak checks."
+description: >-
+  Builds a bespoke, project-owned Postgres masking solution and establishes a masked-baseline workflow for development, testing, previews, and analytics. Use when a user needs masked production-like data, mentions database masking, anonymization, de-identification, or PII, or wants to create, adapt, or review an Anon-kit solution for Databricks Lakebase, Neon Postgres, or another Postgres database.
 ---
 
 # Anon-kit
 
-Anon-kit masks a copy of a Postgres database in place: one masking strategy per column, compiled to SQL, verified by leak checks. It is a recipe — the source is a starting point that becomes part of this repository, yours to adapt.
+Start by reading the current README at https://github.com/lirbank/anon-kit. It explains the proposed workflow and documented behavior.
 
-## Step 1: pick the install path
+## Gather the right context
 
-Follow exactly one of these paths, based on this repository's stack.
+- For a new solution, inspect the user's repository and database information, then inspect the relevant parts of the Anon-kit repository before choosing how to seed the project-owned implementation.
+- For an existing bespoke solution, inspect the local implementation first. Consult the relevant parts of the Anon-kit repository to understand inherited behavior or find useful patterns, but treat the local code as authoritative.
+- For a workflow-only question, the README may be sufficient.
 
-### Option 1 - TypeScript or JavaScript codebase
+## Work with the user
 
-```sh
-npx shadcn@latest add lirbank/anon-kit/anon-kit
-```
+Help the user build a bespoke, project-owned masking solution that fits their repository, database, and requirements.
 
-Add a script to package.json so the command is discoverable:
+Understand the user's system and how they currently make production copies. Explain the proposed workflow in terms of their platform and align on the direction before building.
 
-```json
-"anon-kit": "npx bun tools/anon-kit/cli.ts"
-```
+The user creates and removes databases and database branches. Explain what they need to do and wait for them to do it.
 
-If `tools/anon-kit/` already exists, it has likely been adapted to this repository — do not reinstall over it without asking the user.
+## Keep the database boundary
 
-### Option 2 - any other codebase
+`ANON_KIT_DATABASE_URL` is the dedicated connection for this work and must point to the copy created for masking. All introspection, compilation, masking, and verification must use only this connection.
 
-Translate the recipe. Read the reference implementation at https://github.com/lirbank/anon-kit (`src/`) and port it to this repository's stack — the masking logic is plain SQL, so it carries over. The contract to preserve: the `anon-kit.json` map (one strategy per column), the leak checks, and failing closed on any mismatch between map and live schema.
+Never use, copy, infer, or fall back to `DATABASE_URL` or any other application database connection. If `ANON_KIT_DATABASE_URL` is unset, instruct the user to create the dedicated production copy, set the variable, and wait for them to do it.
 
-The steps below use the TypeScript commands; on a translated port, use its equivalents.
+## Build and iterate
 
-## Step 2: point at a copy of production
+Use what you learn from the user and the Anon-kit repository to build a useful base solution. Reuse, adapt, translate, or replace the reference implementation according to the user's stack and needs.
 
-`apply` rewrites data in place. It must run against a disposable copy of production, never production itself — if it is not certain that a connection string points at a copy, confirm with the user before continuing.
-
-Set the copy's connection string as `ANON_KIT_DATABASE_URL` in the environment or in a `.env` file in the repository root.
-
-## Step 3: generate the map
-
-```sh
-npx bun tools/anon-kit/cli.ts init
-```
-
-## Step 4: draft the map, then stop for review
-
-Set a masking strategy on each sensitive column in `anon-kit.json` — read the recipe (the README and the descriptors in `tools/anon-kit/strategies/`) for what each strategy does.
-
-Present the drafted map to the user for review before applying. Flag every judgment call — columns you are unsure about, free-text columns that may hold names, and anything left on `keep` that could be personal data.
-
-## Step 5: apply
-
-```sh
-npx bun tools/anon-kit/cli.ts apply
-```
-
-## Invariants
-
-- Every live column must have an explicit masking decision, including `keep`. Any mismatch between the map and live schema must fail closed.
-- Treat the copy as sensitive until masking and verification both succeed. Never use a failed or partially verified copy as the baseline or hand it to development, testing, or analytics.
-- Never weaken or remove a leak check to make `apply` pass — fix the strategy or the map instead.
-- A new strategy must contribute a leak check that would catch its own failure.
-- Any change to verification behavior (`verify`, leak checks, the compiler in `tools/anon-kit/`) must be flagged to the user explicitly.
-- Do not claim the masked database is fully anonymized — shape-preserving strategies keep identifying structure.
+Treat the base solution as the first iteration. Propose decisions, explain assumptions and uncertainty, and use the user's domain knowledge and the results of running the solution to improve it. Continue until the user agrees that it works for their intended use.

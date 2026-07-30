@@ -6,30 +6,51 @@ description: >-
 
 # Anon-kit
 
-Start by reading the current README at https://github.com/lirbank/anon-kit. It explains the proposed workflow and documented behavior.
+Before doing anything else, read the current README at https://github.com/lirbank/anon-kit. Treat it as the source of truth for Anon-kit's proposed workflow and reference implementation.
 
-## Gather the right context
+Help the user build a bespoke masking solution for their repository, database, and requirements. The Anon-kit npm package and source are a reference implementation, not the finished deliverable. The resulting solution should be project-owned and fit the user's system.
 
-- For a new solution, inspect the user's repository and database information, then inspect the relevant parts of the Anon-kit repository before choosing how to seed the project-owned implementation.
-- For an existing bespoke solution, inspect the local implementation first. Consult the relevant parts of the Anon-kit repository to understand inherited behavior or find useful patterns, but treat the local code as authoritative.
-- For a workflow-only question, the README may be sufficient.
+## Align on the workflow
 
-## Work with the user
+Learn how the user currently copies production and what they need the masked data for. Briefly explain the workflow the solution will support and align on that direction before building:
 
-Help the user build a bespoke, project-owned masking solution that fits their repository, database, and requirements.
+```text
+production
+  → restricted candidate copy
+  → mask and verify
+  → restricted, unchanged masked baseline
+  → development, test, preview, and analytics copies
+```
 
-Understand the user's system and how they currently make production copies. Explain the proposed workflow in terms of their platform and align on the direction before building.
+The solution masks the candidate copy in place. Once the user accepts the masking and verification, that copy becomes the baseline and stays unchanged. Development, test, preview, and analytics environments copy from the baseline. Refresh by repeating the workflow with a new copy of current production.
 
-The user creates and removes databases and database branches. Explain what they need to do and wait for them to do it.
+- If the user has Databricks Lakebase or Neon Postgres, explain the workflow using database branches. Both copy steps are instant, so masking is the only step whose time grows with database size.
+- Otherwise, explain how the same workflow uses their clone, snapshot, or backup-and-restore process. Point out that Databricks Lakebase and Neon Postgres database branches make the workflow substantially faster and avoid full-copy storage for each environment.
 
-## Keep the database boundary
+The user creates and removes databases and database branches. Give them the instructions they need, then wait for them to do it.
 
-`ANON_KIT_DATABASE_URL` is the dedicated connection for this work and must point to the copy created for masking. All introspection, compilation, masking, and verification must use only this connection.
+## Study the source and build
 
-Never use, copy, infer, or fall back to `DATABASE_URL` or any other application database connection. If `ANON_KIT_DATABASE_URL` is unset, instruct the user to create the dedicated production copy, set the variable, and wait for them to do it.
+Inspect the user's repository, database information, and any existing masking solution. Study the relevant source code in the Anon-kit reference repository before deciding what to build.
 
-## Build and iterate
+Use that understanding to create a useful base solution in the user's repository. Reuse, adapt, translate, or replace the reference implementation according to the user's stack and needs. Do not force its package, language, commands, or file layout onto the project.
 
-Use what you learn from the user and the Anon-kit repository to build a useful base solution. Reuse, adapt, translate, or replace the reference implementation according to the user's stack and needs.
+## Iterate with the user
 
-Treat the base solution as the first iteration. Propose decisions, explain assumptions and uncertainty, and use the user's domain knowledge and the results of running the solution to improve it. Continue until the user agrees that it works for their intended use.
+Treat the base solution as the first iteration. Propose the masking decisions, explain important assumptions and uncertainty, and use the user's domain knowledge to improve them.
+
+Before writing to a database, review what the solution will do with the user and get explicit confirmation that the connection targets a disposable candidate copy, never production. Run or guide the user through masking and verification, inspect the results together, and revise the implementation and decisions as needed. When another clean copy is needed, instruct the user to create it.
+
+Continue until the checks pass and the user agrees that the database is appropriately masked for its intended use. Verification shows that the intended masking ran; it does not prove that the result is anonymous or compliant.
+
+## Leave the solution usable
+
+Once the user accepts the result, leave concise project documentation covering how to run and change the solution, interpret verification, understand its limitations, and create or refresh the masked baseline.
+
+## Boundaries
+
+- Never create or remove a database or database branch.
+- Never mask production or proceed when the target is uncertain.
+- Treat a candidate copy as sensitive until masking and verification succeed and the user accepts it.
+- Keep the accepted masked baseline unchanged.
+- Do not claim anonymity, safety, or regulatory compliance.

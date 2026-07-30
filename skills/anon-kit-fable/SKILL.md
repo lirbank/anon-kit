@@ -1,5 +1,5 @@
 ---
-name: anon-kit
+name: anon-kit-fable
 description: "Mask sensitive data in a copy of a Postgres database so it can be handed to development, testing, or analytics. Use when a user wants to mask, anonymize, or de-identify a database, remove PII from a database copy, create safe dev/test data from production, or set up data masking on a Neon Postgres or Databricks Lakebase database branch. Also use for adjusting an existing Anon-kit setup: editing the anon-kit.json map, adding or changing masking strategies, or reviewing leak checks."
 ---
 
