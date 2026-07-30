@@ -1,7 +1,8 @@
 ## Rules
 
 - Use sentence case instead of title case
-- Never mutate Git state or a database without the user’s confirmation.
+- Never hard-wrap prose in Markdown files
+- Never mutate Git state or a database without the user’s confirmation
 - Propose commit messages when ready to commit
 - Max three words for new Git branch names
 - Max four words for Git commit messages
