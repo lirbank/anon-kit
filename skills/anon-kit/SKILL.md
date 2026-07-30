@@ -57,6 +57,8 @@ npx bun tools/anon-kit/cli.ts apply
 
 ## Invariants
 
+- Every live column must have an explicit masking decision, including `keep`. Any mismatch between the map and live schema must fail closed.
+- Treat the copy as sensitive until masking and verification both succeed. Never use a failed or partially verified copy as the baseline or hand it to development, testing, or analytics.
 - Never weaken or remove a leak check to make `apply` pass — fix the strategy or the map instead.
 - A new strategy must contribute a leak check that would catch its own failure.
 - Any change to verification behavior (`verify`, leak checks, the compiler in `tools/anon-kit/`) must be flagged to the user explicitly.
