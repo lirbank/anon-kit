@@ -9,9 +9,7 @@ Start by reading the current README at https://github.com/lirbank/anon-kit. It d
 
 ## Step 1: align on the workflow
 
-Briefly explain the masked-baseline workflow from the README in terms of the user's system and confirm the direction before building. Learn which database they want to mask, how they make copies of it, and what development, testing, preview, or analytics environments will consume the baseline.
-
-The user creates and removes databases and database branches. You explain what they need to do, provide exact instructions, and wait for them to do it.
+Explain that you will build a project-owned masking tool, help the user run it on a copy they create, iterate until the result is accepted, and retain that copy as the baseline.
 
 ## Step 2: create the base implementation
 
