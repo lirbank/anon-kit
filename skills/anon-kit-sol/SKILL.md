@@ -20,8 +20,16 @@ Help the user build a bespoke, project-owned masking solution that fits their re
 
 Understand the user's system and how they currently make production copies. Explain the proposed workflow in terms of their platform and align on the direction before building.
 
+The user creates and removes databases and database branches. Explain what they need to do and wait for them to do it.
+
+## Keep the database boundary
+
+`ANON_KIT_DATABASE_URL` is the dedicated connection for this work and must point to the copy created for masking. All introspection, compilation, masking, and verification must use only this connection.
+
+Never use, copy, infer, or fall back to `DATABASE_URL` or any other application database connection. If `ANON_KIT_DATABASE_URL` is unset, instruct the user to create the dedicated production copy, set the variable, and wait for them to do it.
+
+## Build and iterate
+
 Use what you learn from the user and the Anon-kit repository to build a useful base solution. Reuse, adapt, translate, or replace the reference implementation according to the user's stack and needs.
 
 Treat the base solution as the first iteration. Propose decisions, explain assumptions and uncertainty, and use the user's domain knowledge and the results of running the solution to improve it. Continue until the user agrees that it works for their intended use.
-
-The user creates and removes databases and database branches. Explain what they need to do and wait for them to do it.
