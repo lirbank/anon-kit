@@ -95,7 +95,7 @@ The npm package is a standalone CLI. Its documentation and source in this reposi
 
    `apply` compiles the map to SQL, asks you to confirm the target host, masks the database in place, and runs leak checks that must come back clean.
 
-After the checks pass, use the masked copy directly or retain it as the approved baseline for development, testing, or analytics copies.
+After the checks pass, keep the verified masked copy unchanged as the baseline, then create development, test, and analytics copies from it.
 
 ### Commands
 
