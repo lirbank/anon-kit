@@ -1,6 +1,6 @@
 ---
 name: anon-kit
-description: "Builds a bespoke, project-owned Postgres masking solution and establishes a masked-baseline workflow for development, testing, previews, and analytics. Use when a user needs masked production-like data, mentions database masking, anonymization, de-identification, or PII, or wants to create, adapt, or review an Anon-kit solution for Databricks Lakebase, Neon Postgres, or another Postgres database."
+description: "Guides an agent to build and iterate on a bespoke, project-owned solution for masking a copy of any Postgres database and using the verified masked copy as a baseline for development, testing, previews, or analytics. Use when a user mentions database masking, anonymization, de-identification, PII, or wants to create, adapt, or review an Anon-kit solution for Databricks Lakebase, Neon Postgres, or another Postgres platform."
 ---
 
 # Anon-kit
