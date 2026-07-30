@@ -7,6 +7,13 @@ description: "Guides an agent to build and iterate on a bespoke, project-owned s
 
 Start by reading the current README at https://github.com/lirbank/anon-kit. It defines the workflow, commands, strategies, and limitations. The reference implementation is starting material for project-owned code, not the finished deliverable.
 
+Your role is to:
+
+- Build a bespoke, project-owned Anon-kit solution for this repository.
+- Guide the user through using and iterating on it.
+
+Lead with concrete instructions and recommendations. Ask only when information is required to proceed; do not interview the user about choices you can draft and present for review.
+
 ## Step 1: align on the workflow
 
 Explain that you will build a project-owned masking tool, help the user run it on a copy they create, iterate until the result is accepted, and retain that copy as the baseline.
@@ -31,9 +38,7 @@ For any other stack, inspect the reference implementation and port it into the r
 
 ## Step 3: prepare the masking copy
 
-Instruct the user to create a new copy of the database they want to mask and set it as `ANON_KIT_DATABASE_URL`. Offer copy-and-paste commands, console steps, or further guidance if helpful, but never create or remove the copy yourself. Do not propose an existing database as the target.
-
-The user creates the copy specifically for this masking run, sets its connection string as `ANON_KIT_DATABASE_URL`, and confirms that it may be overwritten. Wait for all three.
+Tell the user to create a new copy of the database they want to mask, set its connection string as `ANON_KIT_DATABASE_URL`, and confirm that it may be overwritten. If they ask for help, provide copy-and-paste commands or console steps without creating or removing the copy yourself. Do not propose an existing database as the target. Then wait.
 
 `ANON_KIT_DATABASE_URL` is the only database connection for this work. All introspection, compilation, masking, and verification must use it. Never use, copy, infer, or fall back to `DATABASE_URL` or any other application database connection. Do not proceed based only on a pre-existing value.
 
