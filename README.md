@@ -40,16 +40,9 @@ The skill is the primary way to use Anon-kit. It guides the agent to study the r
 
 The agent drafts the masking decisions and stops for review before changing data. After implementation it should document the bespoke solution's commands, strategies, limitations, and procedure for creating or refreshing copies.
 
-## Safety contract
+## Safety
 
-A bespoke implementation can replace the CLI, map, strategies, or language, but it must preserve these outcomes:
-
-- Never mask production in place. The disposable target still contains production data until masking and verification succeed, so keep it restricted.
-- Every column gets an explicit masking decision. New columns and incompatible schema changes fail closed instead of silently shipping real values.
-- Verification is part of the masking design. Recognizable outputs have checks that catch strategy failure, and a check is never weakened merely to make a run pass.
-- A human reviews uncertain columns, free text, and every decision to keep real values before masking begins.
-- A failed or partially verified copy remains sensitive and must not be used for development.
-- Shape-preserving strategies retain identifying structure. A masked database is not necessarily fully anonymized.
+Anon-kit is a starting point, not a guarantee that data is anonymous or compliant with any standard. It masks a database in place, so only point it at a disposable copy of production. Keep the copy restricted until your team has reviewed the masking decisions and verification results.
 
 ## npm package
 
