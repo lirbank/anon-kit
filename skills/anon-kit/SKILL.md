@@ -31,9 +31,9 @@ For any other stack, inspect the reference implementation and port it into the r
 
 ## Step 3: prepare the masking copy
 
-Determine the database platform, recommend the applicable copy method described in the README, and give the user exact commands or console steps. Offer further guidance, but never create or remove the copy yourself.
+Instruct the user to create a new copy of the database they want to mask and set it as `ANON_KIT_DATABASE_URL`. Offer copy-and-paste commands, console steps, or further guidance if helpful, but never create or remove the copy yourself. Do not propose an existing database as the target.
 
-Masking runs only on a copy of the database the user wants to mask, created specifically for this masking run. The user sets that copy's connection string as `ANON_KIT_DATABASE_URL` and confirms that it may be overwritten. Wait for both.
+The user creates the copy specifically for this masking run, sets its connection string as `ANON_KIT_DATABASE_URL`, and confirms that it may be overwritten. Wait for all three.
 
 `ANON_KIT_DATABASE_URL` is the only database connection for this work. All introspection, compilation, masking, and verification must use it. Never use, copy, infer, or fall back to `DATABASE_URL` or any other application database connection. Do not proceed based only on a pre-existing value.
 
@@ -49,19 +49,19 @@ Draft a masking decision for every column. Use the target repository, schema, RE
 
 ## Step 6: apply, verify, and iterate
 
-Offer a compile-only review first:
+Offer the user a compile-only review command first:
 
 ```sh
 npx bun tools/anon-kit/cli.ts apply --compile-only
 ```
 
-After the user approves the masking decisions and confirms the target, apply and verify:
+After the user approves the masking decisions and confirms the target, give them the command to apply and verify:
 
 ```sh
 npx bun tools/anon-kit/cli.ts apply
 ```
 
-Review the verification output and resulting application behavior with the user. Fix the map, change strategies, or extend the bespoke implementation wherever the result is incomplete or unsuitable. When another clean run is needed, instruct the user to create a fresh copy and update `ANON_KIT_DATABASE_URL`.
+Review the command output with the user. Fix the map, change strategies, or extend the bespoke implementation wherever the result is incomplete or unsuitable. When another clean run is needed, instruct the user to create a fresh copy and update `ANON_KIT_DATABASE_URL`.
 
 Repeat until verification passes and the user agrees that the masking coverage and retained data utility fit the intended use.
 
@@ -72,6 +72,7 @@ Document the bespoke solution's commands, masking decisions, limitations, and pr
 ## Invariants
 
 - Every live column has an explicit masking decision, including `keep`. Any mismatch between the map and live schema fails closed.
+- Never run a command that creates, changes, or removes a database or its hosting infrastructure. Prepare commands for the user to run.
 - Treat the copy as sensitive until masking and verification succeed and the user accepts the result.
 - Never weaken or remove verification merely to make a run pass. Explain verification changes to the user.
 - Do not claim that the masked database is anonymous, safe, or compliant with any standard.
