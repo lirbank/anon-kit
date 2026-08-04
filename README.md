@@ -60,7 +60,7 @@ The npm package is a standalone CLI. Its documentation and source in this reposi
 
 1. Create a disposable copy of production and get its connection string:
 
-   - **[Databricks Lakebase](https://www.databricks.com/product/lakebase)** — create the masked baseline and its downstream copies as Lakebase Autoscaling branches, then use an OAuth token (`databricks auth token`) as the password.
+   - **[Databricks Lakebase](https://www.databricks.com/product/lakebase)** — create the masked baseline and its downstream copies as Lakebase Autoscaling branches, then use a Lakebase OAuth token as the password.
    - **[Neon Postgres](https://neon.com/)** — create a database branch in the console or with `neon branches create`.
    - **Any Postgres** — restore a dump into a scratch database with `pg_dump` and `pg_restore`.
 
