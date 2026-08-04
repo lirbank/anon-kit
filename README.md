@@ -24,7 +24,7 @@ Refresh the baseline by repeating the workflow with a new copy of current produc
 
 ### Databricks Lakebase and Neon Postgres
 
-Database branching makes both copy steps instant. Masking is the only step whose time grows with database size, so create a database branch of production and mask it once. Then create isolated developer, test, and preview database branches from the masked baseline.
+Database branching makes both copy steps instant. Masking is the only step whose time grows with database size, so create a database branch of production and mask it once. Then create isolated developer, test, and preview database branches from the masked baseline. On Databricks Lakebase, use Lakebase Autoscaling branches for both copy steps because child database instances cannot be nested.
 
 ### Regular Postgres
 
