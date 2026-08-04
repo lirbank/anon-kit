@@ -26,8 +26,6 @@ Refresh the baseline by repeating the workflow with a new copy of current produc
 
 Database branching makes both copy steps instant. Masking is the only step whose time grows with database size, so create a database branch of production and mask it once. Then create isolated developer, test, and preview database branches from the masked baseline.
 
-On Databricks Lakebase, use Lakebase Autoscaling branches for both copy steps because child database instances cannot be nested.
-
 ### Regular Postgres
 
 Anon-kit works with regular Postgres too. Clone production or restore a backup, mask that copy once, then use it as the source for developer, test, and preview copies. Unlike database branches, each copy takes time and requires storage proportional to the database size, but you still avoid repeating the masking work.
@@ -62,7 +60,7 @@ The npm package is a standalone CLI. Its documentation and source in this reposi
 
 1. Create a disposable copy of production and get its connection string:
 
-   - **[Databricks Lakebase](https://www.databricks.com/product/lakebase)** — create a database branch in the console or with the Databricks CLI, then use an OAuth token (`databricks auth token`) as the password.
+   - **[Databricks Lakebase](https://www.databricks.com/product/lakebase)** — create the masked baseline and its downstream copies as Lakebase Autoscaling branches, then use an OAuth token (`databricks auth token`) as the password.
    - **[Neon Postgres](https://neon.com/)** — create a database branch in the console or with `neon branches create`.
    - **Any Postgres** — restore a dump into a scratch database with `pg_dump` and `pg_restore`.
 
