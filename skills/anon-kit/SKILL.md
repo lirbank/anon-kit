@@ -22,6 +22,8 @@ Explain that you will build a project-owned masking tool, help the user run it o
 
 If a bespoke implementation already exists, inspect and continue adapting it. Do not reinstall the reference implementation over project-owned code.
 
+### Option 1: TypeScript or JavaScript
+
 For a TypeScript or JavaScript repository, vendor the reference source:
 
 ```sh
@@ -33,6 +35,8 @@ Add a package script so the command is discoverable:
 ```json
 "anon-kit": "npx bun tools/anon-kit/cli.ts"
 ```
+
+### Option 2: Other languages
 
 For any other stack, inspect the reference implementation and port it into the repository's language and tooling. Preserve the `anon-kit.json` map, verification, and fail-closed schema validation. The remaining steps use the TypeScript commands; use the port's equivalents.
 
